@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../utils/api";
 import AdminSidebar from "./AdminSidebar";
+import api from "../utils/api"; 
 
 const MasterCatalogAdmin = () => {
   const [products, setProducts] = useState([]);

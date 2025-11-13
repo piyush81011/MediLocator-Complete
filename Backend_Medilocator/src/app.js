@@ -67,6 +67,7 @@ import inventoryRouter from "./routes/inventory.routes.js";
 import productCatalogRouter from "./routes/productCatalog.routes.js";
 import productRequestRouter from "./routes/productRequest.routes.js";
 import userRouter from "./routes/user.routes.js";
+import billingRouter from "./routes/billing.routes.js";
 
 // This is the new public route we created in the previous step.
 // It is CRITICAL for your customer-facing pages.
@@ -84,6 +85,7 @@ app.use("/api/v1/stores", storeRouter); // For store login/register
 app.use("/api/v1/inventory", inventoryRouter); // Store's OWN inventory (auth required)
 app.use("/api/v1/catalog", productCatalogRouter); // Store's MASTER catalog search (auth required)
 app.use("/api/v1/requests", productRequestRouter); // Store's product requests (auth required)
+app.use("/api/v1/billing", billingRouter);
 
 // --- Basic Test Route ---
 app.get("/api/v1/health", (req, res) => {

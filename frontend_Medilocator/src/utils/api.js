@@ -1,5 +1,6 @@
 import axios from "axios";
 
+// This creates a central 'axios' instance
 const api = axios.create({
   baseURL: "/api/v1", // Your API base URL
   withCredentials: true,
@@ -8,8 +9,8 @@ const api = axios.create({
   },
 });
 
-// This 'interceptor' adds the token from localStorage to
-// every request that requires authentication.
+// This 'interceptor' automatically adds your login token
+// to every request you make using this 'api' object.
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
@@ -24,4 +25,3 @@ api.interceptors.request.use(
 );
 
 export default api;
-

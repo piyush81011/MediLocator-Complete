@@ -38,7 +38,8 @@ const storeInventorySchema = new Schema(
     batchNumber: {
       type: String,
       trim: true,
-      default: ""
+      // Batch number is now required
+      required: [true, "Batch number is required"]
     },
     minStockAlert: {
       type: Number,
@@ -51,15 +52,17 @@ const storeInventorySchema = new Schema(
   }
 );
 
-// Compound index for unique product per store
-storeInventorySchema.index({ store: 1, product: 1 }, { unique: true });
+// --- IMPORTANT CHANGE ---
+// We remove the old index that only allowed ONE product entry per store
+// storeInventorySchema.index({ store: 1, product: 1 }, { unique: true });
 
-// Index for searching available products with stock
-storeInventorySchema.index({ 
-  isAvailable: 1, 
-  stockQuantity: 1,
-  expiryDate: 1 
-});
+// We add a NEW index to make the BATCH NUMBER unique for each product
+// A store can have multiple entries for "Dolo" if they have different batch numbers
+storeInventorySchema.index(
+  { store: 1, product: 1, batchNumber: 1 }, 
+  { unique: true, sparse: true } 
+);
+// --- END OF CHANGE ---
 
 // Virtual for checking if stock is low
 storeInventorySchema.virtual('isLowStock').get(function() {
@@ -78,15 +81,17 @@ storeInventorySchema.virtual('isExpiringSoon').get(function() {
   return this.expiryDate <= thirtyDaysFromNow && !this.isExpired;
 });
 
-// Ensure virtuals are included when converting to JSON
+// Ensure virtuals are included
 storeInventorySchema.set('toJSON', { virtuals: true });
 storeInventorySchema.set('toObject', { virtuals: true });
 
 // Pre-save middleware to automatically update availability
 storeInventorySchema.pre('save', function(next) {
-  // Set isAvailable to false if out of stock or expired
   if (this.stockQuantity === 0 || this.expiryDate < new Date()) {
     this.isAvailable = false;
+  } else {
+    // Also make sure it's available if stock is added
+    this.isAvailable = true; 
   }
   next();
 });

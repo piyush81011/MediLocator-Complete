@@ -1,0 +1,65 @@
+/* Universal form input and textarea styling */
+
+/* All text inputs */
+.form-control,
+.form-control-lg,
+.form-select,
+.form-select-lg {
+  font-size: 1.25rem !important;
+}
+
+/* All textareas */
+textarea.form-control,
+textarea.form-control-lg {
+  font-size: 1.25rem !important;
+  line-height: 1.5 !important;
+}
+
+/* Placeholder text */
+.form-control::placeholder,
+.form-control-lg::placeholder,
+textarea.form-control::placeholder,
+textarea.form-control-lg::placeholder {
+  font-size: 1.25rem !important;
+}
+
+/* Search input specific */
+.catalog-search-input {
+  font-size: 1.5rem !important;
+  padding: 14px 20px !important;
+  height: 60px !important;
+  border-radius: 12px !important;
+  border: 2px solid #d1e3ff !important;
+  background-color: #fdfdff !important;
+  transition: all 0.25s ease-in-out !important;
+}
+
+.catalog-search-input::placeholder {
+  font-size: 1.375rem !important;
+  color: #7b8ca4 !important;
+}
+
+.catalog-search-input:focus {
+  border-color: #4d8dfc !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 6px rgba(77, 141, 252, 0.4) !important;
+}
+
+/* Search wrapper */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-wrapper i {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  font-size: 24px;
+  color: #7b8ca4;
+}
+
+.catalog-search-input.with-icon {
+  padding-left: 50px !important;
+}

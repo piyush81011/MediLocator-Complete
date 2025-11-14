@@ -1,7 +1,9 @@
+import "../styles/formStyles.css";
 import React, { useState, useEffect } from "react";
 import AdminSidebar from "./AdminSidebar";
-import api from "../utils/api"; // Make sure you create the api.js file
+import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
+
 
 const SearchCatalog = () => {
   const [search, setSearch] = useState("");
@@ -10,98 +12,87 @@ const SearchCatalog = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // This hook searches the API as you type
   useEffect(() => {
-    // Don't search if the bar is empty
-    if (search.trim() === "") {
+    if (!search.trim()) {
       setProducts([]);
-      setLoading(false);
       return;
     }
 
-    setLoading(true);
-    setError(null);
-
-    // This timer waits 300ms after you stop typing to search
-    const delayDebounce = setTimeout(async () => {
+    const delay = setTimeout(async () => {
       try {
-        // Calls GET /api/v1/catalog/search?search=...
         const res = await api.get("/catalog/search", {
-          params: { search: search },
+          params: { search },
         });
         setProducts(res.data.data.products);
-      } catch (err) {
-        setError("Failed to search products");
-        setProducts([]);
-      } finally {
-        setLoading(false);
+      } catch {
+        setError("Search failed");
       }
-    }, 300); // 300ms delay
+      setLoading(false);
+    }, 300);
 
-    // Clear the timer if the user types again
-    return () => clearTimeout(delayDebounce);
-  }, [search]); // Re-run this effect every time 'search' changes
-
-  const handleAddProduct = (product) => {
-    // This navigates to the AddStock page, passing the product
-    // It matches the route: /store/add-stock/:medicineId
-    navigate(`/store/add-stock/${product._id}`, { state: { medicine: product } });
-  };
+    return () => clearTimeout(delay);
+  }, [search]);
 
   return (
     <div className="d-flex vh-100">
       <AdminSidebar />
-      <div className="flex-grow-1 p-4 vh-100" style={{ overflow: 'auto', backgroundColor: '#f8f9fa' }}>
-        <h1 className="display-5">Search Master Catalog</h1>
+      <div className="flex-grow-1 p-4">
+
+        <h1 className="display-5 fw-bold">Search Master Catalog</h1>
         <p className="lead">Find a product to add to your store's inventory.</p>
-        
-        <form onSubmit={(e) => e.preventDefault()} className="d-flex gap-2 my-4">
+
+        {/* Modern Search Bar */}
+        <div className="search-wrapper my-4">
+          <i className="bi bi-search"></i>
           <input
             type="text"
-            className="form-control form-control-lg"
-            placeholder="Start typing to search medicines..."
+            className="form-control form-control-lg catalog-search-input with-icon"
+            placeholder="Search medicines, tablets, syrups..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          {loading && (
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          )}
-        </form>
+        </div>
 
-        {error && <p className="alert alert-danger">{error}</p>}
+        {products.length === 0 && search.trim() !== "" && (
+          <div className="alert alert-warning text-center py-4">
+            <h4>No products found for "{search}".</h4>
+            <button
+              className="btn btn-success btn-lg mt-3"
+              onClick={() => navigate("/store/request-product")}
+            >
+              Request This Product to be Added
+            </button>
+          </div>
+        )}
 
+        {/* Results */}
         <div className="list-group">
-          {/* Show "No products" message only after searching */}
-          {!loading && products.length === 0 && search.trim() !== "" && (
-            <div className="list-group-item text-center p-4">
-              <h4 className="mb-3">No products found for "{search}".</h4>
-              <button
-                className="btn btn-success"
-                onClick={() => navigate("/store/request-product")} // Route from your App.jsx
-              >
-                Request This Product to be Added
-              </button>
-            </div>
-          )}
-          
-          {products.map((product) => (
-            <div className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" key={product._id}>
+          {products.map((p) => (
+            <div
+              key={p._id}
+              className="list-group-item d-flex justify-content-between align-items-center"
+            >
               <div>
-                <h5 className="mb-1">{product.name}</h5>
-                <p className="mb-1"><strong>Brand:</strong> {product.brand} | <strong>Generic:</strong> {product.genericName || "N/A"}</p>
-                <small>Pack Size: {product.packSize}</small>
+                <h5 className="mb-1">{p.name}</h5>
+                <small className="text-muted">
+                  Brand: {p.brand} | Generic: {p.genericName || "N/A"}
+                </small>
+                <br />
+                <small className="text-muted">Pack Size: {p.packSize}</small>
               </div>
+
               <button
                 className="btn btn-success"
-                onClick={() => handleAddProduct(product)}
+                onClick={() =>
+                  navigate(`/store/add-stock/${p._id}`, { state: { medicine: p } })
+                }
               >
                 + Add to My Inventory
               </button>
             </div>
           ))}
         </div>
+
       </div>
     </div>
   );

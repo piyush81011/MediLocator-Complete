@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AdminSidebar from "./AdminSidebar";
 import api from "../utils/api";
-import AdminSidebar from "./AdminSidebar"; // Import the sidebar
+import "../styles/formStyles.css";
 
 const AddProductCatalog = () => {
   const [formData, setFormData] = useState({
@@ -14,11 +15,14 @@ const AddProductCatalog = () => {
     genericName: "",
     manufacturer: "",
     requiresPrescription: false,
+    reason: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const navigate = useNavigate();
+  
+  const isRequestForm = window.location.pathname.includes('/store/request-product');
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -33,13 +37,22 @@ const AddProductCatalog = () => {
     setLoading(true);
     setError(null);
     setSuccess(null);
+    
+    const url = isRequestForm ? "/requests" : "/catalog";
+    const data = isRequestForm ? { ...formData, productName: formData.name } : formData;
+
     try {
-      // This hits the POST /api/v1/catalog/ route we just made
-      await api.post("/catalog", formData); 
-      setSuccess("Product added to master catalog successfully!");
-      setTimeout(() => navigate("/admin/master-catalog"), 2000);
+      if (isRequestForm) {
+        await api.post(url, data);
+        setSuccess("Product request submitted successfully!");
+        setTimeout(() => navigate("/store/my-requests"), 2000);
+      } else {
+        await api.post(url, data); 
+        setSuccess("Product added to master catalog successfully!");
+        setTimeout(() => navigate("/admin/master-catalog"), 2000);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to add product.");
+      setError(err.response?.data?.message || "Failed to submit.");
     } finally {
       setLoading(false);
     }
@@ -49,8 +62,18 @@ const AddProductCatalog = () => {
     <div className="d-flex vh-100">
       <AdminSidebar />
       <div className="flex-grow-1 p-4 vh-100" style={{ overflow: 'auto', backgroundColor: '#f8f9fa' }}>
-        <h1 className="display-5">Add New Product to Master Catalog</h1>
-        <p className="lead">This product will be available for all stores to add.</p>
+        
+        {isRequestForm ? (
+          <>
+            <h1 className="display-5">Request New Product</h1>
+            <p className="lead">Product not in catalog? Fill out this form to request it.</p>
+          </>
+        ) : (
+          <>
+            <h1 className="display-5">Add New Product to Master Catalog</h1>
+            <p className="lead">This product will be available for all stores to add.</p>
+          </>
+        )}
         
         {error && <div className="alert alert-danger">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
@@ -86,14 +109,27 @@ const AddProductCatalog = () => {
               <label className="form-label">Pack Size (e.g., 15 Tablets)</label>
               <input type="text" name="packSize" onChange={handleChange} className="form-control form-control-lg" />
             </div>
+
             <div className="col-12">
               <label className="form-label">Manufacturer</label>
-              <input type="text" name="manufacturer" onChange={handleChange} className="form-control form-control-lg" />
+              <input 
+                type="text" 
+                name="manufacturer" 
+                onChange={handleChange} 
+                className="form-control form-control-lg"
+              />
             </div>
+            
             <div className="col-12">
               <label className="form-label">Description</label>
-              <textarea name="description" onChange={handleChange} className="form-control form-control-lg"></textarea>
+              <textarea 
+                name="description" 
+                onChange={handleChange} 
+                className="form-control form-control-lg"
+                rows="3"
+              ></textarea>
             </div>
+
             <div className="col-12">
               <div className="form-check form-switch fs-5">
                 <input 
@@ -107,18 +143,32 @@ const AddProductCatalog = () => {
                 <label className="form-check-label" htmlFor="reqPrescription">Requires Prescription</label>
               </div>
             </div>
+            
+            {isRequestForm && (
+              <div className="col-12">
+                <label className="form-label">Reason for Request</label>
+                <textarea 
+                  name="reason" 
+                  value={formData.reason} 
+                  onChange={handleChange} 
+                  required 
+                  className="form-control form-control-lg"
+                  rows="3"
+                ></textarea>
+              </div>
+            )}
           </div>
           <hr className="my-4" />
           <div className="d-flex justify-content-end gap-2">
             <button 
               type="button" 
               className="btn btn-lg btn-secondary" 
-              onClick={() => navigate("/admin/master-catalog")}
+              onClick={() => navigate(-1)}
             >
               Cancel
             </button>
             <button type="submit" className="btn btn-lg btn-primary" disabled={loading}>
-              {loading ? "Adding..." : "Add Product"}
+              {loading ? "Submitting..." : (isRequestForm ? "Submit Request" : "Add Product")}
             </button>
           </div>
         </form>

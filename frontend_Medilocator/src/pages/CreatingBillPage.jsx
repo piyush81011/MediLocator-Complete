@@ -1,190 +1,235 @@
 import React, { useState, useEffect } from "react";
-import AdminSidebar from "../components/AdminSidebar";
-import api from "../utils/api";
 import { useNavigate } from "react-router-dom";
+import AdminSidebar from "../components/AdminSidebar";
+import "../styles/formStyles.css";
+import api from "../utils/api";
 
-const CreateBillPage = () => {
-  const [search, setSearch] = useState("");
+const BillingPage = () => {
+  const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [cart, setCart] = useState([]);
-  const [loadingSearch, setLoadingSearch] = useState(false);
-  const [loadingSubmit, setLoadingSubmit] = useState(false);
-  const [error, setError] = useState(null);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // 1. Debounced search for inventory
+  // Search inventory
   useEffect(() => {
-    if (search.trim() === "") {
+    if (!searchTerm.trim()) {
       setSearchResults([]);
-      setLoadingSearch(false);
       return;
     }
-    setLoadingSearch(true);
-    const delayDebounce = setTimeout(async () => {
+
+    const delay = setTimeout(async () => {
       try {
-        // Calls the NEW /api/v1/inventory/search endpoint
-        const res = await api.get("/inventory/search", { params: { search } });
-        setSearchResults(res.data.data);
+        const res = await api.get("/inventory/search", {
+          params: { search: searchTerm },
+        });
+        setSearchResults(res.data.data || []);
       } catch (err) {
-        setError("Failed to search inventory.");
-      } finally {
-        setLoadingSearch(false);
+        console.error("Search failed:", err);
       }
     }, 300);
-    return () => clearTimeout(delayDebounce);
-  }, [search]);
 
-  // 2. Add an item (a specific batch) to the cart
-  const addToCart = (batch) => {
-    const existingCartItem = cart.find(item => item.inventoryId === batch._id);
-    
-    if (existingCartItem) {
-      if (existingCartItem.quantity < batch.stockQuantity) {
-        setCart(cart.map(item => 
-          item.inventoryId === batch._id 
-            ? { ...item, quantity: item.quantity + 1 } 
-            : item
-        ));
-      } else {
-        alert("Max stock reached for this batch.");
-      }
+    return () => clearTimeout(delay);
+  }, [searchTerm]);
+
+  const addToCart = (item) => {
+    const existing = cart.find((c) => c._id === item._id);
+    if (existing) {
+      setCart(
+        cart.map((c) =>
+          c._id === item._id ? { ...c, quantity: c.quantity + 1 } : c
+        )
+      );
     } else {
-      if (batch.stockQuantity > 0) {
-        setCart([
-          ...cart, 
-          { 
-            inventoryId: batch._id, 
-            name: batch.product.name,
-            batchNumber: batch.batchNumber,
-            price: batch.price,
-            stock: batch.stockQuantity,
-            quantity: 1 
-          }
-        ]);
-      }
+      setCart([...cart, { ...item, quantity: 1 }]);
     }
-    setSearch("");
+    setSearchTerm("");
     setSearchResults([]);
   };
 
-  // 3. Update quantity in cart
-  const updateQuantity = (inventoryId, newQuantity) => {
-    const itemInCart = cart.find(item => item.inventoryId === inventoryId);
-    if (!itemInCart) return;
-    
-    const qty = parseInt(newQuantity) || 0;
-
-    if (qty > 0 && qty <= itemInCart.stock) {
-      setCart(cart.map(item => 
-        item.inventoryId === inventoryId 
-          ? { ...item, quantity: qty } 
-          : item
-      ));
-    } else if (qty <= 0) {
-      removeFromCart(inventoryId);
+  const updateQuantity = (id, newQty) => {
+    if (newQty <= 0) {
+      setCart(cart.filter((c) => c._id !== id));
     } else {
-      alert("Max stock reached for this batch.");
-      setCart(cart.map(item => 
-        item.inventoryId === inventoryId 
-          ? { ...item, quantity: itemInCart.stock } 
-          : item
-      ));
+      setCart(cart.map((c) => (c._id === id ? { ...c, quantity: newQty } : c)));
     }
   };
 
-  // 4. Remove from cart
-  const removeFromCart = (inventoryId) => {
-    setCart(cart.filter(item => item.inventoryId !== inventoryId));
+  const removeFromCart = (id) => {
+    setCart(cart.filter((c) => c._id !== id));
   };
 
-  // 5. Calculate total
-  const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  // Calculations
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const discountAmount = (subtotal * discount) / 100;
+  const taxRate = 5; // 5% GST
+  const taxAmount = ((subtotal - discountAmount) * taxRate) / 100;
+  const total = subtotal - discountAmount + taxAmount;
 
-  // 6. Submit the bill
-  const handleSubmitBill = async (e) => {
-    e.preventDefault();
+  const handleCheckout = async () => {
     if (cart.length === 0) {
-      setError("Cannot create an empty bill.");
+      alert("Cart is empty!");
       return;
     }
-    setLoadingSubmit(true);
-    setError(null);
+
+    setLoading(true);
     try {
-      await api.post("/billing", {
-        items: cart.map(item => ({ 
-          inventoryId: item.inventoryId, 
+      const billData = {
+        customerName: customerName || "Walk-in Customer",
+        customerPhone: customerPhone || "",
+        items: cart.map((item) => ({
+          inventoryId: item._id,
           quantity: item.quantity,
-          name: item.name, 
-          batchNumber: item.batchNumber
+          price: item.price,
         })),
-        customerName: customerName || "Walk-in",
-        customerPhone: customerPhone
-      });
+        subtotal,
+        discount: discountAmount,
+        tax: taxAmount,
+        total,
+      };
+
+      await api.post("/billing", billData);
       alert("Bill created successfully!");
+      
+      // Reset
       setCart([]);
-      setCustomerName("");
+      setCustomerName("Walk-in Customer");
       setCustomerPhone("");
-      navigate("/store/billing/history"); // Go to sales history
+      setDiscount(0);
+      navigate("/store/billing/history");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create bill.");
+      alert(err.response?.data?.message || "Failed to create bill");
     } finally {
-      setLoadingSubmit(false);
+      setLoading(false);
     }
   };
 
   return (
     <div className="d-flex vh-100">
       <AdminSidebar />
-      <div className="flex-grow-1 p-4 vh-100" style={{ overflow: 'auto', backgroundColor: '#f8f9fa' }}>
-        <h1 className="display-5">New Bill / Point of Sale (POS)</h1>
+      <div className="flex-grow-1 p-4" style={{ backgroundColor: "#f5f5f5", overflow: "auto" }}>
         
-        {error && <div className="alert alert-danger">{error}</div>}
+        <h2 className="mb-4">📋 Point of Sale (POS)</h2>
 
         <div className="row g-4">
-          
-          {/* Left Side: Cart */}
-          <div className="col-lg-7">
-            <div className="card shadow-sm">
+          {/* Left Side - Product Search & Cart */}
+          <div className="col-lg-8">
+            
+            {/* Search Box */}
+            <div className="card shadow-sm mb-4">
               <div className="card-body">
-                <h5 className="card-title">Billing Cart</h5>
+                <label className="form-label fw-bold">Search Products in Inventory</label>
+                <input
+                  type="text"
+                  className="form-control form-control-lg"
+                  placeholder="Type product name, brand, or generic name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                
+                {/* Search Results Dropdown */}
+                {searchResults.length > 0 && (
+                  <div className="list-group mt-2" style={{ maxHeight: "300px", overflowY: "auto" }}>
+                    {searchResults.map((item) => (
+                      <button
+                        key={item._id}
+                        className="list-group-item list-group-item-action"
+                        onClick={() => addToCart(item)}
+                      >
+                        <div className="d-flex justify-content-between">
+                          <div>
+                            <strong>{item.product.name}</strong> - {item.product.brand}
+                            <br />
+                            <small className="text-muted">
+                              Stock: {item.stockQuantity} | Batch: {item.batchNumber || "N/A"}
+                            </small>
+                          </div>
+                          <div className="text-end">
+                            <strong className="text-success">₹{item.price}</strong>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Billing Cart Table */}
+            <div className="card shadow">
+              <div className="card-header bg-primary text-white">
+                <h5 className="mb-0">📦 Billing Cart</h5>
+              </div>
+              <div className="card-body p-0">
                 {cart.length === 0 ? (
-                  <p>Your cart is empty. Use the search to add products.</p>
+                  <div className="text-center py-5 text-muted">
+                    <h5>Cart is empty</h5>
+                    <p>Search and add products to start billing</p>
+                  </div>
                 ) : (
                   <div className="table-responsive">
-                    <table className="table">
-                      <thead>
+                    <table className="table table-hover mb-0">
+                      <thead className="table-light">
                         <tr>
-                          <th>Product</th>
+                          <th style={{ width: "50px" }}>S.No</th>
+                          <th>Product Name</th>
                           <th>Batch</th>
-                          <th style={{width: "120px"}}>Quantity</th>
-                          <th>Price</th>
-                          <th>Subtotal</th>
-                          <th></th>
+                          <th style={{ width: "100px" }}>Price</th>
+                          <th style={{ width: "120px" }}>Qty</th>
+                          <th style={{ width: "120px" }}>Amount</th>
+                          <th style={{ width: "80px" }}>Action</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {cart.map(item => (
-                          <tr key={item.inventoryId}>
-                            <td>{item.name}</td>
-                            <td><span className="badge text-bg-secondary">{item.batchNumber}</span></td>
+                        {cart.map((item, index) => (
+                          <tr key={item._id}>
+                            <td>{index + 1}</td>
                             <td>
-                              <input 
-                                type="number" 
-                                className="form-control form-control-sm"
-                                value={item.quantity}
-                                onChange={(e) => updateQuantity(item.inventoryId, e.target.value)}
-                                max={item.stock}
-                                min={1}
-                              />
-                              <small className="text-muted">In stock: {item.stock}</small>
+                              <strong>{item.product.name}</strong>
+                              <br />
+                              <small className="text-muted">{item.product.brand}</small>
+                            </td>
+                            <td>
+                              <small>{item.batchNumber || "N/A"}</small>
                             </td>
                             <td>₹{item.price.toFixed(2)}</td>
-                            <td>₹{(item.price * item.quantity).toFixed(2)}</td>
                             <td>
-                              <button className="btn btn-sm btn-outline-danger" onClick={() => removeFromCart(item.inventoryId)}>
-                                X
+                              <div className="input-group input-group-sm">
+                                <button
+                                  className="btn btn-outline-secondary"
+                                  onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                                >
+                                  −
+                                </button>
+                                <input
+                                  type="number"
+                                  className="form-control text-center"
+                                  value={item.quantity}
+                                  onChange={(e) =>
+                                    updateQuantity(item._id, parseInt(e.target.value) || 1)
+                                  }
+                                  min="1"
+                                />
+                                <button
+                                  className="btn btn-outline-secondary"
+                                  onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </td>
+                            <td>
+                              <strong>₹{(item.price * item.quantity).toFixed(2)}</strong>
+                            </td>
+                            <td>
+                              <button
+                                className="btn btn-sm btn-danger"
+                                onClick={() => removeFromCart(item._id)}
+                              >
+                                ✕
                               </button>
                             </td>
                           </tr>
@@ -197,80 +242,97 @@ const CreateBillPage = () => {
             </div>
           </div>
 
-          {/* Right Side: Search and Checkout */}
-          <div className="col-lg-5">
-            {/* Search Box */}
-            <div className="card shadow-sm mb-3">
+          {/* Right Side - Checkout */}
+          <div className="col-lg-4">
+            <div className="card shadow-sm sticky-top" style={{ top: "20px" }}>
+              <div className="card-header bg-success text-white">
+                <h5 className="mb-0">💳 Checkout</h5>
+              </div>
               <div className="card-body">
-                <h5 className="card-title">Search Products In My Inventory</h5>
-                <input 
-                  type="text"
-                  className="form-control form-control-lg"
-                  placeholder="Start typing to search..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                {loadingSearch && <p>Searching...</p>}
-                {searchResults.length > 0 && (
-                  <div className="list-group mt-2" style={{maxHeight: "300px", overflowY: "auto"}}>
-                    {searchResults.map(batch => (
-                      <button 
-                        key={batch._id} 
-                        type="button"
-                        className="list-group-item list-group-item-action"
-                        onClick={() => addToCart(batch)}
-                      >
-                        <strong>{batch.product.name}</strong> ({batch.product.brand})<br/>
-                        <small>
-                          Batch: <span className="text-danger">{batch.batchNumber}</span> | 
-                          Stock: <span className="text-danger">{batch.stockQuantity}</span> |
-                          Price: ₹{batch.price.toFixed(2)} |
-                          Expiry: {new Date(batch.expiryDate).toLocaleDateString()}
-                        </small>
-                      </button>
-                    ))}
+                
+                {/* Customer Details */}
+                <div className="mb-3">
+                  <label className="form-label fw-bold">Customer Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label fw-bold">Customer Phone</label>
+                  <input
+                    type="tel"
+                    className="form-control"
+                    placeholder="Optional"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                  />
+                </div>
+
+                <hr />
+
+                {/* Bill Summary */}
+                <div className="mb-3">
+                  <div className="d-flex justify-content-between mb-2">
+                    <span>Subtotal:</span>
+                    <strong>₹{subtotal.toFixed(2)}</strong>
                   </div>
-                )}
+
+                  <div className="mb-2">
+                    <label className="form-label fw-bold">Discount (%)</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={discount}
+                      onChange={(e) => setDiscount(Math.max(0, Math.min(100, parseFloat(e.target.value) || 0)))}
+                      min="0"
+                      max="100"
+                    />
+                  </div>
+
+                  <div className="d-flex justify-content-between mb-2 text-danger">
+                    <span>Discount ({discount}%):</span>
+                    <strong>− ₹{discountAmount.toFixed(2)}</strong>
+                  </div>
+
+                  <div className="d-flex justify-content-between mb-2">
+                    <span>GST ({taxRate}%):</span>
+                    <strong>₹{taxAmount.toFixed(2)}</strong>
+                  </div>
+
+                  <hr />
+
+                  <div className="d-flex justify-content-between mb-3">
+                    <h5 className="mb-0">Total Amount:</h5>
+                    <h4 className="mb-0 text-success">₹{total.toFixed(2)}</h4>
+                  </div>
+                </div>
+
+                {/* Checkout Button */}
+                <button
+                  className="btn btn-success btn-lg w-100"
+                  onClick={handleCheckout}
+                  disabled={loading || cart.length === 0}
+                >
+                  {loading ? "Processing..." : "💰 Create Bill (Cash)"}
+                </button>
+
+                <button
+                  className="btn btn-outline-secondary w-100 mt-2"
+                  onClick={() => {
+                    setCart([]);
+                    setCustomerName("Walk-in Customer");
+                    setCustomerPhone("");
+                    setDiscount(0);
+                  }}
+                >
+                  Clear Cart
+                </button>
               </div>
             </div>
-            
-            {/* Checkout Box */}
-            <form onSubmit={handleSubmitBill}>
-              <div className="card shadow-sm">
-                <div className="card-body">
-                  <h5 className="card-title">Checkout</h5>
-                  <div className="mb-2">
-                    <label className="form-label">Customer Name</label>
-                    <input 
-                      type="text" 
-                      className="form-control"
-                      placeholder="Walk-in Customer"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Customer Phone</label>
-                    <input 
-                      type="text" 
-                      className="form-control"
-                      placeholder="Optional phone number"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                    />
-                  </div>
-                  <hr/>
-                  <h3 className="text-end">Total: ₹{totalAmount.toFixed(2)}</h3>
-                  <button 
-                    type="submit" 
-                    className="btn btn-success btn-lg w-100" 
-                    disabled={cart.length === 0 || loadingSubmit}
-                  >
-                    {loadingSubmit ? "Processing..." : "Create Bill (Cash)"}
-                  </button>
-                </div>
-              </div>
-            </form>
           </div>
         </div>
       </div>
@@ -278,4 +340,4 @@ const CreateBillPage = () => {
   );
 };
 
-export default CreateBillPage;
+export default BillingPage;

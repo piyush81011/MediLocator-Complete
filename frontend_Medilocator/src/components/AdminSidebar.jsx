@@ -1,56 +1,48 @@
 import React from "react";
-// react-icons are components, not CSS, so they are fine to use
 import { 
-  FaBox, 
+  FaTachometerAlt, 
   FaStore, 
   FaPlusCircle, 
+  FaListAlt, 
   FaSignOutAlt, 
-  FaTachometerAlt, 
-  FaListAlt,
+  FaBox,
   FaCashRegister,
-  FaHistory
+  FaHistory 
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png"; // Imports the logo from your assets folder
-import api from "../utils/api"; // Imports the API helper
+import logo from "../assets/logo.png";
+import api from "../utils/api";
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      // Step 1: Tell the backend to log out
       await api.post("/stores/logout");
     } catch (error) {
       console.error("Server logout failed:", error);
     } finally {
-      // Step 2: Clear local storage (this is what logs you out)
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("store");
-      
-      // Step 3: Redirect to login
       navigate("/admin/login");
     }
   };
 
   return (
-    // Main sidebar container styled with Bootstrap classes
-    <div className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark vh-100" style={{ width: "280px" }}>
+    <div className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark vh-100" style={{ width: "240px" }}>
       
-      {/* Logo and App Title */}
       <a 
         href="#"
         onClick={(e) => { e.preventDefault(); navigate("/admin/dashboard"); }} 
         className="d-flex align-items-center mb-3 text-white text-decoration-none"
       >
-        <img src={logo} alt="medilocator" style={{width: "40px", height: "40px"}} className="me-2" />
-        <span className="fs-4">MediLocator Store</span>
+        <img src={logo} alt="medilocator" style={{width: "35px", height: "35px"}} className="me-2" />
+        <span className="fs-5">MediLocator</span>
       </a>
       
       <hr />
 
-      {/* Navigation Links */}
       <ul className="nav nav-pills flex-column mb-auto">
         <li className="nav-item">
           <a 
@@ -63,12 +55,11 @@ const AdminSidebar = () => {
           </a>
         </li>
         
-        {/* Billing (POS) Link */}
         <li className="nav-item">
           <a 
             href="#" 
             onClick={(e) => { e.preventDefault(); navigate("/store/billing/new"); }} 
-            className="nav-link text-white d-flex align-items-center fs-5"
+            className="nav-link text-white d-flex align-items-center"
           >
             <FaCashRegister className="me-2" />
             Billing (POS)
@@ -78,7 +69,7 @@ const AdminSidebar = () => {
         <li className="nav-item">
           <a 
             href="#" 
-            onClick={(e) => { e.preventDefault(); navigate("/store"); }} 
+            onClick={(e) => { e.preventDefault(); navigate("/store"); }}
             className="nav-link text-white d-flex align-items-center"
           >
             <FaStore className="me-2" />
@@ -102,11 +93,10 @@ const AdminSidebar = () => {
             className="nav-link text-white d-flex align-items-center"
           >
             <FaListAlt className="me-2" />
-            My Product Requests
+            My Requests
           </a>
         </li>
         
-        {/* Sales History Link */}
         <li className="nav-item">
           <a 
             href="#" 
@@ -119,7 +109,7 @@ const AdminSidebar = () => {
         </li>
 
         <hr className="text-secondary" />
-        <li className="nav-item-header text-muted small ps-2">ADMIN TOOLS</li>
+        <li className="nav-item-header text-muted small ps-2">ADMIN</li>
         <li className="nav-item">
           <a 
             href="#" 
@@ -134,7 +124,6 @@ const AdminSidebar = () => {
 
       <hr />
       
-      {/* Logout Button */}
       <div className="pb-2">
         <button 
           onClick={handleLogout} 

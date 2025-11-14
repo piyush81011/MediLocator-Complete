@@ -4,32 +4,33 @@ import { asyncHandler } from "../utils/AsyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+// Helper function to escape regex special characters
+const escapeRegex = (string) => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 const addProductToInventory = asyncHandler(async (req, res) => {
   const { productId, price, stockQuantity, expiryDate, batchNumber, minStockAlert } = req.body;
 
-  // 1. UPDATE VALIDATION (Batch number is now required)
   if (!productId || !price || !stockQuantity || !expiryDate || !batchNumber) {
     throw new ApiError(400, "Product ID, price, stock quantity, expiry date, and batch number are required");
   }
 
-  // Check if product exists in catalog (no change)
   const product = await ProductCatalog.findById(productId);
   if (!product) {
     throw new ApiError(404, "Product not found in catalog");
   }
 
-  // 2. UPDATE DUPLICATE CHECK (Now checks for the batch)
   const existingInventory = await StoreInventory.findOne({
     store: req.store._id,
     product: productId,
-    batchNumber: batchNumber // Check for a matching batch number
+    batchNumber: batchNumber
   });
 
   if (existingInventory) {
     throw new ApiError(409, "This exact batch (Product + Batch Number) already exists. Use the update endpoint to modify.");
   }
 
-  // Create inventory item (this code now works for batches)
   const inventory = await StoreInventory.create({
     store: req.store._id,
     product: productId,
@@ -52,7 +53,6 @@ const getStoreInventory = asyncHandler(async (req, res) => {
 
   const matchStage = { store: req.store._id };
 
-  // Build aggregation pipeline
   const pipeline = [
     { $match: matchStage },
     {
@@ -66,38 +66,33 @@ const getStoreInventory = asyncHandler(async (req, res) => {
     { $unwind: "$product" }
   ];
 
-  // Add category filter
   if (category) {
     pipeline.push({
       $match: { "product.category": category }
     });
   }
 
-  // Add search filter
+  // FIX: Escape special regex characters
   if (search) {
+    const escapedSearch = escapeRegex(search);
     pipeline.push({
       $match: {
         $or: [
-          { "product.name": { $regex: search, $options: "i" } },
-          { "product.brand": { $regex: search, $options: "i" } },
-          { "product.genericName": { $regex: search, $options: "i" } }
+          { "product.name": { $regex: escapedSearch, $options: "i" } },
+          { "product.brand": { $regex: escapedSearch, $options: "i" } },
+          { "product.genericName": { $regex: escapedSearch, $options: "i" } }
         ]
       }
     });
   }
 
-  // Add sorting
   const sortOrder = order === "desc" ? -1 : 1;
-  // Sort by product name first, then by the requested field (e.g., expiryDate)
   pipeline.push({ $sort: { "product.name": 1, [sortBy]: sortOrder } });
 
-
-  // Count total documents
   const countPipeline = [...pipeline, { $count: "total" }];
   const countResult = await StoreInventory.aggregate(countPipeline);
   const total = countResult.length > 0 ? countResult[0].total : 0;
 
-  // Add pagination
   pipeline.push(
     { $skip: (parseInt(page) - 1) * parseInt(limit) },
     { $limit: parseInt(limit) }
@@ -124,12 +119,10 @@ const getStoreInventory = asyncHandler(async (req, res) => {
 
 const updateInventoryItem = asyncHandler(async (req, res) => {
   const { inventoryId } = req.params;
-  // Batch number CANNOT be updated, so it's not included here
   const { price, stockQuantity, expiryDate, minStockAlert, isAvailable } = req.body;
 
   const updateData = { price, stockQuantity, expiryDate, minStockAlert, isAvailable };
 
-  // Remove undefined fields so you can update just one thing (e.g., only price)
   Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
 
   if (Object.keys(updateData).length === 0) {
@@ -139,19 +132,18 @@ const updateInventoryItem = asyncHandler(async (req, res) => {
   const inventory = await StoreInventory.findOneAndUpdate(
     {
       _id: inventoryId,
-      store: req.store._id // Ensure store can only update their own items
+      store: req.store._id
     },
     {
       $set: updateData
     },
-    { new: true } // Return the updated document
+    { new: true }
   );
 
   if (!inventory) {
     throw new ApiError(404, "Inventory item not found");
   }
   
-  // Re-populate the product details to send back
   const updatedInventory = await StoreInventory.findById(inventoryId).populate("product");
 
   return res
@@ -164,7 +156,7 @@ const deleteInventoryItem = asyncHandler(async (req, res) => {
 
   const inventory = await StoreInventory.findOneAndDelete({
     _id: inventoryId,
-    store: req.store._id // Ensure store can only delete their own items
+    store: req.store._id
   });
 
   if (!inventory) {
@@ -183,7 +175,6 @@ const getInventoryStats = asyncHandler(async (req, res) => {
     { $match: { store: storeId } },
     {
       $facet: {
-        // We now count UNIQUE products, not total batches
         totalProducts: [
           { $group: { _id: "$product" } },
           { $count: "count" }
@@ -210,7 +201,7 @@ const getInventoryStats = asyncHandler(async (req, res) => {
             $match: {
               expiryDate: {
                 $gte: new Date(),
-                $lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+                $lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
               }
             }
           },
@@ -233,7 +224,7 @@ const getInventoryStats = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, result, "Inventory stats fetched successfully"));
 });
 
-// --- THIS IS THE NEW FUNCTION FOR YOUR BILLING/POS PAGE ---
+// FIX: Escape regex in search function
 const searchStoreInventory = asyncHandler(async (req, res) => {
   const { search } = req.query;
   const storeId = req.store._id;
@@ -242,15 +233,16 @@ const searchStoreInventory = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, [], "Empty search query"));
   }
 
-  // We search for items in this store's inventory
-  // that are in stock AND match the product name/brand
+  // FIX: Escape special regex characters
+  const escapedSearch = escapeRegex(search);
+
   const items = await StoreInventory.aggregate([
     {
       $match: {
         store: storeId,
-        stockQuantity: { $gt: 0 }, // Only find items that are in stock
+        stockQuantity: { $gt: 0 },
         isAvailable: true,
-        expiryDate: { $gt: new Date() } // And not expired
+        expiryDate: { $gt: new Date() }
       }
     },
     {
@@ -265,21 +257,19 @@ const searchStoreInventory = asyncHandler(async (req, res) => {
     {
       $match: {
         $or: [
-          { "product.name": { $regex: search, $options: "i" } },
-          { "product.brand": { $regex: search, $options: "i" } },
-          { "product.genericName": { $regex: search, $options: "i" } }
+          { "product.name": { $regex: escapedSearch, $options: "i" } },
+          { "product.brand": { $regex: escapedSearch, $options: "i" } },
+          { "product.genericName": { $regex: escapedSearch, $options: "i" } }
         ]
       }
     },
     {
-      $sort: { "product.name": 1, "expiryDate": 1 } // Sort by name, then by expiry (oldest first)
+      $sort: { "product.name": 1, "expiryDate": 1 }
     }
   ]);
 
   return res.status(200).json(new ApiResponse(200, items, "Inventory search successful"));
 });
-// --- END OF NEW FUNCTION ---
-
 
 const getLowStockProducts = asyncHandler(async (req, res) => {
   const products = await StoreInventory.find({
@@ -324,15 +314,13 @@ const getExpiringSoonProducts = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, products, "Expiring soon products fetched successfully"));
 });
 
-
-
 export {
   addProductToInventory,
   getStoreInventory,
   updateInventoryItem,
   deleteInventoryItem,
   getInventoryStats,
-  searchStoreInventory, // <-- ADD THE NEW EXPORT
+  searchStoreInventory,
   getLowStockProducts,
   getExpiredProducts,
   getExpiringSoonProducts

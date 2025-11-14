@@ -1,8 +1,7 @@
-* Modern medical-style search bar */
 .catalog-search-input {
-  font-size: 1.5rem !important; /* Increased to 24px for better readability */
+  font-size: 1.5rem !important;
   padding: 14px 20px !important;
-  height: 60px !important; /* Increased height to accommodate larger text */
+  height: 60px !important;
   border-radius: 12px !important;
   border: 2px solid #d1e3ff !important;
   background-color: #fdfdff !important;
@@ -11,7 +10,7 @@
 
 /* Placeholder styling */
 .catalog-search-input::placeholder {
-  font-size: 1.375rem !important; /* Increased to 22px */
+  font-size: 1.375rem !important;
   color: #7b8ca4 !important;
 }
 
@@ -33,11 +32,11 @@
   top: 50%;
   left: 16px;
   transform: translateY(-50%);
-  font-size: 20px;
+  font-size: 24px;
   color: #7b8ca4;
 }
 
 /* input padding-left increased for icon */
 .catalog-search-input.with-icon {
-  padding-left: 45px !important;
+  padding-left: 50px !important;
 }

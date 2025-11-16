@@ -16,62 +16,69 @@ const createBill = asyncHandler(async (req, res) => {
   const updates = [];
   const billItems = [];
 
-  // 1. First, check stock for ALL items before doing anything
+  // 1️⃣ Validate inventory + Prepare billItems
   for (const item of items) {
-    const inventoryBatch = await StoreInventory.findById(item.inventoryId);
+    const inventoryBatch = await StoreInventory.findById(item.inventoryId).populate("product");
 
     if (!inventoryBatch || inventoryBatch.store.toString() !== storeId.toString()) {
-      throw new ApiError(404, `Item ${item.name} with batch ${item.batchNumber} not found.`);
+      throw new ApiError(404, `Product batch not found.`);
     }
 
     if (inventoryBatch.stockQuantity < item.quantity) {
-      throw new ApiError(400, `Insufficient stock for ${item.name} (Batch: ${item.batchNumber}). Available: ${inventoryBatch.stockQuantity}, Requested: ${item.quantity}`);
+      throw new ApiError(
+        400,
+        `Insufficient stock for ${inventoryBatch.product.name}.
+         Available: ${inventoryBatch.stockQuantity}, Requested: ${item.quantity}`
+      );
     }
 
-    totalAmount += inventoryBatch.price * item.quantity;
+    const amount = inventoryBatch.price * item.quantity;
+    totalAmount += amount;
+
     billItems.push({
-      product: inventoryBatch.product,
+      product: inventoryBatch.product._id,
       inventory: inventoryBatch._id,
       quantity: item.quantity,
       soldPrice: inventoryBatch.price,
-      name: item.name,
-      batchNumber: inventoryBatch.batchNumber,
+      name: inventoryBatch.product.name,      // ✅ FIXED
+      batchNumber: inventoryBatch.batchNumber // OPTIONAL
     });
+
     updates.push({
       id: inventoryBatch._id,
       quantity: item.quantity
     });
   }
-  
-  // 2. All checks passed. Now create the bill.
+
+  // 2️⃣ Create the Bill
   const bill = await Bill.create({
     store: storeId,
-    customerName: customerName || "Walk-in",
+    customerName: customerName || "Walk-in Customer",
     customerPhone: customerPhone || "",
     paymentMethod: paymentMethod || "cash",
     paymentStatus: "completed",
     items: billItems,
-    totalAmount: totalAmount
+    totalAmount
   });
 
-  if (!bill) {
-    throw new ApiError(500, "Failed to create the bill");
-  }
+  if (!bill) throw new ApiError(500, "Failed to generate bill");
 
-  // 3. After the bill is successfully created, update the inventory
+  // 3️⃣ Deduct stock
   await Promise.all(
-    updates.map(upd => 
-      StoreInventory.findByIdAndUpdate(upd.id, {
-        $inc: { stockQuantity: -upd.quantity }
+    updates.map((u) =>
+      StoreInventory.findByIdAndUpdate(u.id, {
+        $inc: { stockQuantity: -u.quantity }
       })
     )
   );
 
-  return res
-    .status(201)
-    .json(new ApiResponse(201, bill, "Bill created successfully"));
+  return res.status(201).json(
+    new ApiResponse(201, bill, "Bill created successfully")
+  );
 });
 
+
+// GET STORE BILLS
 const getStoreBills = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20 } = req.query;
   const storeId = req.store._id;
@@ -80,7 +87,7 @@ const getStoreBills = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(parseInt(limit));
-    
+
   const total = await Bill.countDocuments({ store: storeId });
 
   return res.status(200).json(
@@ -88,9 +95,9 @@ const getStoreBills = asyncHandler(async (req, res) => {
       bills,
       pagination: {
         total,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        pages: Math.ceil(total / parseInt(limit))
+        page: Number(page),
+        limit: Number(limit),
+        pages: Math.ceil(total / Number(limit))
       }
     }, "Bills fetched successfully")
   );

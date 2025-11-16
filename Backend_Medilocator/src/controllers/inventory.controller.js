@@ -211,18 +211,42 @@ const getInventoryStats = asyncHandler(async (req, res) => {
     }
   ]);
 
-  const result = {
-    totalProducts: stats[0].totalProducts[0]?.count || 0,
-    outOfStock: stats[0].outOfStock[0]?.count || 0,
-    lowStock: stats[0].lowStock[0]?.count || 0,
-    expired: stats[0].expired[0]?.count || 0,
-    expiringSoon: stats[0].expiringSoon[0]?.count || 0
-  };
+  const total = stats[0].totalProducts[0]?.count || 0;
+  const lowStock = stats[0].lowStock[0]?.count || 0;
+  const outOfStock = stats[0].outOfStock[0]?.count || 0;
+  const expired = stats[0].expired[0]?.count || 0;
+  const expiringSoon = stats[0].expiringSoon[0]?.count || 0;
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, result, "Inventory stats fetched successfully"));
+  // Calculate percentages (protect divide-by-zero)
+  const lowStockPercent = total ? Math.round((lowStock / total) * 100) : 0;
+  const outOfStockPercent = total ? Math.round((outOfStock / total) * 100) : 0;
+  const expiredPercent = total ? Math.round((expired / total) * 100) : 0;
+  const expiringSoonPercent = total ? Math.round((expiringSoon / total) * 100) : 0;
+  const healthyStockPercent = total
+    ? Math.round(((total - lowStock - outOfStock - expired) / total) * 100)
+    : 0;
+
+  return res.status(200).json(
+    new ApiResponse(200,
+      {
+        totalProducts: total,
+        lowStock,
+        outOfStock,
+        expired,
+        expiringSoon,
+
+        // NEW → Needed for dashboard
+        lowStockPercent,
+        outOfStockPercent,
+        expiredPercent,
+        expiringSoonPercent,
+        healthyStockPercent
+      },
+      "Inventory stats fetched successfully"
+    )
+  );
 });
+
 
 // FIX: Escape regex in search function
 const searchStoreInventory = asyncHandler(async (req, res) => {

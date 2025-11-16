@@ -14,11 +14,22 @@ const MasterCatalogAdmin = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await api.get("/catalog");
-        setProducts(res.data.data.products || []);
+        // 🔥 Only fetch medicines
+        const res = await api.get("/catalog?category=medicine");
+
+        console.log("API Response:", res.data);
+
+        // Backend response format fix
+        const productList =
+          res.data?.data?.products ||
+          res.data?.products ||
+          res.data ||
+          [];
+
+        setProducts(productList);
       } catch (err) {
         setError("Failed to load master catalog.");
-        console.error(err);
+        console.error("Catalog Fetch Error:", err);
       } finally {
         setLoading(false);
       }
@@ -31,11 +42,14 @@ const MasterCatalogAdmin = () => {
     <div className="d-flex vh-100">
       <AdminSidebar />
 
-      <div className="flex-grow-1 p-4 vh-100" style={{ overflow: "auto", backgroundColor: "#f8f9fa" }}>
-        
+      <div
+        className="flex-grow-1 p-4 vh-100"
+        style={{ overflow: "auto", backgroundColor: "#f8f9fa" }}
+      >
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h1 className="fw-bold">Master Product Catalog</h1>
-          <button 
+
+          <button
             className="btn btn-success btn-lg"
             onClick={() => navigate("/admin/master-catalog/add")}
           >
@@ -44,7 +58,7 @@ const MasterCatalogAdmin = () => {
         </div>
 
         <p className="text-secondary mb-4">
-          Central repository of all medicines and health products available in the MediLocator platform.
+          Central repository of all <b>medicines</b> available in the MediLocator platform.
         </p>
 
         {/* Loading */}
@@ -61,13 +75,13 @@ const MasterCatalogAdmin = () => {
         {/* No products */}
         {!loading && products.length === 0 && (
           <div className="text-center py-5 text-muted">
-            <h4>No products found</h4>
-            <p>Add products to build your catalog.</p>
-            <button 
+            <h4>No medicines found</h4>
+            <p>Add medicine products to build your catalog.</p>
+            <button
               className="btn btn-primary"
               onClick={() => navigate("/admin/master-catalog/add")}
             >
-              + Add First Product
+              + Add First Medicine
             </button>
           </div>
         )}
@@ -91,7 +105,9 @@ const MasterCatalogAdmin = () => {
                     <td>{p.name}</td>
                     <td>{p.brand}</td>
                     <td>{p.genericName || "N/A"}</td>
-                    <td><span className="badge bg-secondary">{p.category}</span></td>
+                    <td>
+                      <span className="badge bg-secondary">{p.category}</span>
+                    </td>
                     <td>{p.requiresPrescription ? "Yes" : "No"}</td>
                   </tr>
                 ))}
@@ -99,7 +115,6 @@ const MasterCatalogAdmin = () => {
             </table>
           </div>
         )}
-
       </div>
     </div>
   );

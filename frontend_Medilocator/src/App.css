@@ -1,14 +1,15 @@
+
 body {
-  background-color: #f4fbfb !important;
-  color: #333 !important;
+  background: #f8f9fa;  /* soft light gray */
 }
+
 
 .detail{
   margin: 1rem 1.5rem 1rem 1.5rem ;
 
 }
 .main-container{
-  background-color:#1b4242;
+  background: #f8f9fa;
 }
 
 

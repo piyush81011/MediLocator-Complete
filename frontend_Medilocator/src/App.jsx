@@ -1,11 +1,9 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 // (Your existing imports)
-import Layout from "./layout";
+import Layout from "./components/layout";
 import ProtectedRoute from "./components/protectedRoute";
 import Detail from "./components/Detail";
-import Signup from "./components/Signup";
-import Login from "./components/login";
 import MedicineDetails from "./components/medicineDetails";
 import AdminDashboard from "./components/AdminDashboard";
 import StoreDashboard from "./components/StoreDashboard";
@@ -24,9 +22,12 @@ import CreateBillPage from "./pages/CreatingBillPage";
 import BillListPage from "./pages/BillingListPage";
 
 
+import SignUp from "./components/Signup";
+import Login from "./components/login";
+
 function App() {
   return (
-    <Router>
+    <Router> 
       <Routes>
         {/* ... (Your Public & Auth Routes are fine) ... */}
         
@@ -35,7 +36,7 @@ function App() {
           <Route path="/" element={<Detail />} />
           <Route path="/catalog" element={<CatalogDisplay />} />
           <Route path="/product/:productId" element={<MedicineDetails />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/medicineDetails" element={<Navigate to="/catalog" replace />} />
         </Route>

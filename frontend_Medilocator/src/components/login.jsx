@@ -25,7 +25,7 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       setSuccess("Login successful!");
-      setTimeout(() => navigate("/"), 800);
+      setTimeout(() => navigate("/medicines"), 800); // Changed from "/" to "/medicines"
     } catch (err) {
       setError(err.response?.data?.message || "Invalid email or password");
     }

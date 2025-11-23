@@ -1,79 +1,73 @@
-import mongoose, { Schema } from "mongoose";
+// bill.model.js
+import mongoose from "mongoose";
 
-// This schema defines a single item *within* the bill
-const billItemSchema = new Schema({
-  product: {
-    type: Schema.Types.ObjectId,
-    ref: "ProductCatalog",
+const billSchema = new mongoose.Schema({
+  store: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Store",
     required: true
   },
-  inventory: {
-    type: Schema.Types.ObjectId,
-    ref: "StoreInventory", // The specific batch this item came from
-    required: true
-  },
-  quantity: {
-    type: Number,
+  billNumber: {
+    type: String,
     required: true,
-    min: 1
+    unique: true
   },
-  // We store these fields directly on the bill for historical accuracy
-  soldPrice: {
-    type: Number,
-    required: true
-  },
-  name: {
+  customerName: {
     type: String,
-    required: true
+    default: "Walk-in Customer"
   },
-  batchNumber: {
+  customerPhone: String,
+  paymentMethod: {
     type: String,
-    required: true
-  }
-});
-
-const billSchema = new Schema(
-  {
-    store: {
-      type: Schema.Types.ObjectId,
-      ref: "Store",
+    enum: ["cash", "card", "upi", "other"],
+    default: "cash"
+  },
+  paymentStatus: {
+    type: String,
+    enum: ["pending", "completed", "refunded"],
+    default: "completed"
+  },
+  items: [{
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ProductCatalog",
+      required: true
+    },
+    inventory: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StoreInventory"
+    },
+    name: String, // Store product name for records
+    quantity: {
+      type: Number,
       required: true,
-      index: true
+      min: 1
     },
-    // Optional: Link to a registered customer
-    customer: {
-      type: Schema.Types.ObjectId,
-      ref: "User"
-    },
-    // For walk-in customers
-    customerName: {
-      type: String,
-      trim: true,
-      default: "Walk-in"
-    },
-    customerPhone: {
-      type: String,
-      trim: true
-    },
-    items: [billItemSchema],
-    totalAmount: {
+    soldPrice: {
       type: Number,
       required: true
     },
-    paymentMethod: {
-      type: String,
-      required: true,
-      enum: ["cash", "card", "online"],
-      default: "cash"
-    },
-    paymentStatus: {
-      type: String,
-      required: true,
-      enum: ["completed", "pending", "failed"],
-      default: "completed"
-    }
+    price: Number, // Alias for frontend compatibility
+    batchNumber: String
+  }],
+  subtotal: {
+    type: Number,
+    required: true
   },
-  { timestamps: true }
-);
+  discount: {
+    type: Number,
+    default: 0
+  },
+  tax: {
+    type: Number,
+    default: 0
+  },
+  totalAmount: {
+    type: Number,
+    required: true
+  }
+}, { 
+  timestamps: true 
+});
 
 export const Bill = mongoose.model("Bill", billSchema);

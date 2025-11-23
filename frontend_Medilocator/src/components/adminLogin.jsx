@@ -43,8 +43,6 @@ export default function StoreLogin() {
     } catch (err) {
       console.error(err);
       setError(
-        err?.response?.data?.message ||
-          err?.message ||
           "Invalid email or password"
       );
     } finally {

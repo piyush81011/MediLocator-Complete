@@ -72,6 +72,7 @@ import billingRouter from "./routes/billing.routes.js";
 // This is the new public route we created in the previous step.
 // It is CRITICAL for your customer-facing pages.
 import publicProductRouter from "./routes/products.public.routes.js";
+import productsPublicRouter from "./routes/products.public.routes.js";
 
 // --- Route Mounting ---
 // This tells Express to use your route files at specific URLs
@@ -86,6 +87,7 @@ app.use("/api/v1/inventory", inventoryRouter); // Store's OWN inventory (auth re
 app.use("/api/v1/catalog", productCatalogRouter); // Store's MASTER catalog search (auth required)
 app.use("/api/v1/requests", productRequestRouter); // Store's product requests (auth required)
 app.use("/api/v1/billing", billingRouter);
+app.use("/api/v1/products", productsPublicRouter);
 
 // --- Basic Test Route ---
 app.get("/api/v1/health", (req, res) => {

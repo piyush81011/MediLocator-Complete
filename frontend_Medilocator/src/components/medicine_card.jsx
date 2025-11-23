@@ -1,30 +1,73 @@
 import React from "react";
-import "./medicine_card.css";
 import { useNavigate } from "react-router-dom";
 
-
-
-
-function MedicineCard() {
+export default function MedicineCard({ medicine }) {
   const navigate = useNavigate();
+
+  const handleAddToCart = () => {
+    const user = localStorage.getItem("user");
+
+    // If not logged in → go to login
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    alert("Added to cart!");
+  };
+
   return (
-    <div className="medicine-card" onClick={()=>navigate("/medicineDetails")}>
-      <div className="medicine-header">
-        <h2 className="medicine-name">Dolo 650mg Strip Of 15 Tablets</h2>
-        <p className="medicine-brand">By Cipla Ltd</p>
+    <div className="card shadow-sm p-3 h-100 border-0" style={{ cursor: "pointer" }}>
+
+      <div className="card-body">
+
+        {/* Brand */}
+        <p className="text-muted mb-1">
+          {medicine.brand || "Unknown Brand"}
+        </p>
+
+        {/* Name */}
+        <h5 className="fw-bold mb-2">
+          {medicine.name || "Medicine Name"}
+        </h5>
+
+        {/* Pack Size */}
+        <p className="small text-secondary mb-3">
+          {medicine.pack || medicine.packSize || "10 tablets"}
+        </p>
+
+        {/* Price Section */}
+        <div className="d-flex align-items-center gap-2 mb-3">
+
+          {/* Price */}
+          <span className="fw-bold text-success fs-5">
+            ₹{medicine.price || 50}
+          </span>
+
+          {/* MRP (Cut Price) */}
+          {medicine.mrp && (
+            <span className="text-decoration-line-through text-muted">
+              ₹{medicine.mrp}
+            </span>
+          )}
+
+          {/* Discount Badge */}
+          {medicine.discount && (
+            <span className="badge bg-danger">
+              {medicine.discount}% OFF
+            </span>
+          )}
+        </div>
+
+        {/* Add to Cart */}
+        <button
+          className="btn btn-success w-100"
+          onClick={handleAddToCart}
+        >
+          Add to Cart
+        </button>
+
       </div>
-
-      <p className="medicine-quantity">15 Tablet(s) in Strip</p>
-
-      <div className="medicine-pricing">
-        <span className="medicine-price">₹23.45*</span>
-        <span className="medicine-mrp">₹32.13</span>
-        <span className="medicine-discount">27% OFF</span>
-      </div>
-
-      <button className="medicine-btn">Add to Cart</button>
     </div>
   );
 }
-
-export default MedicineCard;

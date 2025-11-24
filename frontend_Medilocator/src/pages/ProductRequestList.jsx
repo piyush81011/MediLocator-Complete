@@ -26,7 +26,7 @@ const ProductRequestList = () => {
     <div className="d-flex vh-100">
       <AdminSidebar />
       <div className="flex-grow-1 p-4 vh-100" style={{ overflow: 'auto', backgroundColor: '#f8f9fa' }}>
-        <h1 className="display-5">My Product Requests</h1>
+        <h1 className="display-6  fw-bold">My Product Requests</h1>
         {loading && <div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div>}
         {error && <p className="alert alert-danger">{error}</p>}
         <div className="card shadow-sm mt-3">

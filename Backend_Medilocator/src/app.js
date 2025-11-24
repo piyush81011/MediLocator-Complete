@@ -74,7 +74,8 @@ import billingRouter from "./routes/billing.routes.js";
 import publicProductRouter from "./routes/products.public.routes.js";
 import productsPublicRouter from "./routes/products.public.routes.js";
 
-// --- Route Mounting ---
+
+import customerRoutes from "./routes/customer.routes.js";
 // This tells Express to use your route files at specific URLs
 
 // Public Routes
@@ -88,6 +89,7 @@ app.use("/api/v1/catalog", productCatalogRouter); // Store's MASTER catalog sear
 app.use("/api/v1/requests", productRequestRouter); // Store's product requests (auth required)
 app.use("/api/v1/billing", billingRouter);
 app.use("/api/v1/products", productsPublicRouter);
+app.use("/api/v1/customer", customerRoutes);
 
 // --- Basic Test Route ---
 app.get("/api/v1/health", (req, res) => {

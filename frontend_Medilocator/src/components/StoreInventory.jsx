@@ -45,7 +45,7 @@ const StoreInventory = () => {
     <div className="d-flex vh-100">
       <AdminSidebar />
       <div className="flex-grow-1 p-4 vh-100" style={{ overflow: 'auto', backgroundColor: '#f8f9fa' }}>
-        <h1 className="display-5">My Store Inventory</h1>
+        <h1 className="display-5 ">My Store Inventory</h1>
         <button className="btn btn-primary my-3" onClick={() => navigate("/store/catalog-search")}>
           + Add New Product from Catalog
         </button>

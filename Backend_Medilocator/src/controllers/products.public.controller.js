@@ -2,53 +2,57 @@
 import { asyncHandler } from "../utils/AsyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { StoreInventory } from "../models/inventory.models.js";
-import mongoose from "mongoose";
 
-// escape regex helper
-const escapeRegex = (s = "") => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+// escape regex
+const escapeRegex = (s = "") => s.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
 
-/**
- * GET /api/v1/products/search?q=paracetamol&page=1&limit=20&category=medicine&sort=price&order=asc
- *
- * Returns: paginated list of products matched + for each product:
- *  - product details
- *  - stores: [{ storeId, name, contact, price, stockQuantity, isAvailable }]
- *  - priceStats: { minPrice, maxPrice, avgPrice }
- */
 const searchProductsPublic = asyncHandler(async (req, res) => {
-  const q = (req.query.q || "").trim();
-  const category = req.query.category;
+  const q = (req.query.q || req.query.search || "").trim();
+  const category = (req.query.category || "").trim();
+  const brand = (req.query.brand || "").trim();
+  const priceMin = parseFloat(req.query.priceMin) || 0;
+  const priceMax = parseFloat(req.query.priceMax) || 9999999;
+
   const page = Math.max(parseInt(req.query.page || "1", 10), 1);
   const limit = Math.max(parseInt(req.query.limit || "20", 10), 1);
-  const sortBy = req.query.sortBy || "minPrice"; // minPrice | maxPrice | avgPrice | name
+
+  const sortBy = req.query.sortBy || req.query.sort || "minPrice";
   const order = req.query.order === "asc" ? 1 : -1;
-  const includeOutOfStock = req.query.includeOutOfStock === "true"; // default false
 
-  // Build match stage for search
-  const matchStages = [];
+  const includeOutOfStock = req.query.includeOutOfStock === "true";
 
-  if (q) {
-    const escaped = escapeRegex(q);
-    matchStages.push({
-      $or: [
-        { "product.name": { $regex: escaped, $options: "i" } },
-        { "product.brand": { $regex: escaped, $options: "i" } },
-        { "product.genericName": { $regex: escaped, $options: "i" } }
-      ]
-    });
+  // BUILD MATCH STAGES SAFELY
+  const match = {};
+
+  // search keywords
+  if (q.length > 0) {
+    const regex = new RegExp(escapeRegex(q), "i");
+    match.$or = [
+      { "product.name": regex },
+      { "product.genericName": regex },
+      { "product.brand": regex },
+      { "product.description": regex }
+    ];
   }
 
-  if (category) {
-    matchStages.push({ "product.category": category });
-  }
+  // filters
+  if (category) match["product.category"] = category;
+  if (brand) match["product.brand"] = new RegExp(escapeRegex(brand), "i");
 
+  // availability
   if (!includeOutOfStock) {
-    matchStages.push({ stockQuantity: { $gt: 0 } });
+    match.isAvailable = true;
+    match.stockQuantity = { $gt: 0 };
+    match.expiryDate = { $gt: new Date() };
   }
 
-  // Aggregation pipeline that groups by product and collects store-level info + price stats
+  // price range
+  match.price = { $gte: priceMin, $lte: priceMax };
+
+
+  // AGGREGATION PIPELINE
   const pipeline = [
-    // join product catalog
+    // 1. Lookup Product Details
     {
       $lookup: {
         from: "productcatalogs",
@@ -59,7 +63,10 @@ const searchProductsPublic = asyncHandler(async (req, res) => {
     },
     { $unwind: "$product" },
 
-    // join store info
+    // 2. Apply Filters (Search, Category, Brand, Availability, Price)
+    { $match: match },
+
+    // 3. Lookup Store Details
     {
       $lookup: {
         from: "stores",
@@ -70,54 +77,26 @@ const searchProductsPublic = asyncHandler(async (req, res) => {
     },
     { $unwind: "$store" },
 
-    // optionally search / category / stock
-    ...(matchStages.length ? [{ $match: { $and: matchStages } }] : []),
-
-    // project only required fields to reduce size
-    {
-      $project: {
-        product: {
-          _id: "$product._id",
-          name: "$product.name",
-          brand: "$product.brand",
-          genericName: "$product.genericName",
-          category: "$product.category",
-          requiresPrescription: "$product.requiresPrescription"
-        },
-        price: 1,
-        stockQuantity: 1,
-        isAvailable: 1,
-        batchNumber: 1,
-        expiryDate: 1,
-        store: {
-          _id: "$store._id",
-          name: "$store.name",
-          phone: "$store.phone",
-          email: "$store.email",
-          address: "$store.address"
-        }
-      }
-    },
-
-    // group by product to aggregate all stores
+    // 4. Group by Product to aggregate store offerings
     {
       $group: {
         _id: "$product._id",
         product: { $first: "$product" },
+
         stores: {
           $push: {
             storeId: "$store._id",
-            name: "$store.name",
-            phone: "$store.phone",
-            email: "$store.email",
+            name: "$store.storeName", // Use storeName based on your store model
             address: "$store.address",
+            contactNo: "$store.contactNo",
             price: "$price",
             stockQuantity: "$stockQuantity",
             isAvailable: "$isAvailable",
-            expiryDate: "$expiryDate",
-            batchNumber: "$batchNumber"
+            batchNumber: "$batchNumber",
+            expiryDate: "$expiryDate"
           }
         },
+
         minPrice: { $min: "$price" },
         maxPrice: { $max: "$price" },
         avgPrice: { $avg: "$price" },
@@ -125,15 +104,10 @@ const searchProductsPublic = asyncHandler(async (req, res) => {
       }
     },
 
-    // optional sort by product name ascending by default
-    {
-      $addFields: {
-        avgPrice: { $round: ["$avgPrice", 2] }
-      }
-    }
+    { $addFields: { avgPrice: { $round: ["$avgPrice", 2] } } }
   ];
 
-  // build facet for pagination and total count
+  // sorting
   const sortStage =
     sortBy === "name"
       ? { "product.name": order }
@@ -141,26 +115,39 @@ const searchProductsPublic = asyncHandler(async (req, res) => {
       ? { maxPrice: order }
       : sortBy === "avgPrice"
       ? { avgPrice: order }
-      : { minPrice: order };
+      : { minPrice: order }; // default sort by lowest price
 
-  const facet = {
+  pipeline.push({
     $facet: {
-      paginatedResults: [{ $sort: sortStage }, { $skip: (page - 1) * limit }, { $limit: limit }],
+      paginatedResults: [
+        { $sort: sortStage },
+        { $skip: (page - 1) * limit },
+        { $limit: limit }
+      ],
       totalCount: [{ $count: "count" }]
     }
-  };
+  });
 
-  const finalPipeline = [...pipeline, facet];
+  const agg = await StoreInventory.aggregate(pipeline);
 
-  const agg = await StoreInventory.aggregate(finalPipeline);
+  const results = agg[0].paginatedResults;
+  const totalDocs = agg[0].totalCount[0] ? agg[0].totalCount[0].count : 0;
 
-  const results = agg[0]?.paginatedResults || [];
-  const total = agg[0]?.totalCount[0]?.count || 0;
-  const pages = Math.ceil(total / limit);
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, { products: results, total, page, pages, limit }, "Search results"));
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        data: results, // renamed to 'data' to match typical frontend expectation or keep as 'medicines'
+        meta: {
+          total: totalDocs,
+          page,
+          limit,
+          pages: Math.ceil(totalDocs / limit)
+        }
+      },
+      "Public product search successful"
+    )
+  );
 });
 
 export { searchProductsPublic };

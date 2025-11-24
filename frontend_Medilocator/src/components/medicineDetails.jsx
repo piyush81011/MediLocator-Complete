@@ -1,100 +1,217 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios"; // Public route, use raw axios
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-function MedicineDetails() {
-  const { productId } = useParams();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const MedicineDetailPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const medicine = location.state?.medicine;
 
-  // You can replace this with dynamic images if you add them to your model
-  const images = [
-    "https://media.istockphoto.com/id/1022216070/photo/packet-of-generic-paracetamol-tablets.jpg?s=2048x2048&w=is&k=20&c=wG39Ddaqn2C_hgh7VjQ-_XpqpquEy-oitQpv0EGhfBY=",
-    "https://media.istockphoto.com/id/157402355/photo/generic-paracetamol-isolated-on-white.jpg?s=1024x1024&w=is&k=20&c=hJmEMYYvJ8s4gTkdTewITUaRQg63Al6tJRDWHBizW6Y=",
-    "https://media.istockphoto.com/id/1217213618/photo/generic-paracetamol-500mg-tablets.jpg?s=1024x1024&w=is&k=20&c=VrfcQ0v51-DOeM4iQpgzGizdAHLYVaFVoG8NxIdX5_A="
-  ];
-  const [mainImage, setMainImage] = useState(images[0]);
-
-  useEffect(() => {
-    const fetchProduct = async () => {
-      setLoading(true);
-      try {
-        // Use the PUBLIC route /api/v1/products
-        const res = await axios.get(`/api/v1/products/${productId}`);
-        setProduct(res.data.data);
-      } catch (err) {
-        setError("Could not find product");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProduct();
-  }, [productId]); 
-
-  if (loading) {
-    return <div className="text-center p-5"><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div></div>;
+  if (!medicine) {
+    return (
+      <div className="container py-5 text-center">
+        <h3>Medicine not found</h3>
+        <button className="btn btn-success mt-3" onClick={() => navigate("/")}>
+          Go to Home
+        </button>
+      </div>
+    );
   }
 
-  if (error) {
-    return <div className="alert alert-danger">{error}</div>;
-  }
-
-  if (!product) {
-    return null; 
-  }
+  const sortedStores = [...medicine.stores].sort((a, b) => a.price - b.price);
+  const minPrice = Math.min(...medicine.stores.map(s => s.price));
+  const maxPrice = Math.max(...medicine.stores.map(s => s.price));
+  const avgPrice = medicine.stores.reduce((sum, s) => sum + s.price, 0) / medicine.stores.length;
 
   return (
-    <div className="container my-5">
-      <div className="row">
-        <div className="col-md-6">
-          <img src={mainImage} alt={product.name} className="img-fluid rounded border mb-3" />
-          <div className="d-flex justify-content-start">
-            {images.map((img, index) => (
-              <img
-                key={index}
-                src={img}
-                alt={`thumb-${index}`}
-                className={`img-thumbnail me-2 ${mainImage === img ? "border-primary border-3" : ""}`}
-                style={{ width: "80px", height: "80px", cursor: "pointer", objectFit: "cover" }}
-                onClick={() => setMainImage(img)}
-              />
-            ))}
-          </div>
-        </div>
+    <div className="min-vh-100" style={{ backgroundColor: "#f8f9fa" }}>
+      <div className="container py-4">
         
-        <div className="col-md-6">
-          <h1 className="display-5">{product.name}</h1>
-          <p className="lead text-muted">By {product.manufacturer || product.brand}</p>
-          <p className="fs-5"><strong>Pack Size:</strong> {product.packSize}</p>
-          <p className="fs-5"><strong>Generic Name:</strong> {product.genericName || "N/A"}</p>
-          
-          {product.description && (
-            <>
-              <h5 className="mt-4">Description</h5>
-              <p>{product.description}</p>
-            </>
-          )}
+        {/* Back Button */}
+        <button className="btn btn-outline-secondary mb-4" onClick={() => navigate(-1)}>
+          ← Back
+        </button>
 
-          {product.requiresPrescription && (
-            <p className="badge text-bg-warning fs-6">⚕️ Prescription Required</p>
-          )}
-          
-          <hr className="my-4" />
-          
-          <div className="card">
-            <div className="card-body">
-              <h5 className="card-title">Find in Stores</h5>
-              <p className="card-text">This product is part of our master catalog. Prices and availability are set by individual stores.</p>
-              <button className="btn btn-primary" disabled>
-                Find Nearby Stores
-              </button>
+        {/* Medicine Info Card */}
+        <div className="card shadow-sm mb-4">
+          <div className="card-body">
+            <div className="row">
+              <div className="col-lg-8">
+                <h2 className="fw-bold mb-3">{medicine.productName}</h2>
+                <div className="mb-3">
+                  <p className="mb-2"><strong>Brand:</strong> {medicine.brand}</p>
+                  {medicine.genericName && (
+                    <p className="mb-2"><strong>Generic Name:</strong> {medicine.genericName}</p>
+                  )}
+                  <p className="mb-2">
+                    <span className="badge bg-info me-2">{medicine.category}</span>
+                    {medicine.requiresPrescription && (
+                      <span className="badge bg-warning text-dark">Prescription Required</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="col-lg-4">
+                <div className="card bg-light border-0">
+                  <div className="card-body text-center">
+                    <h6 className="text-muted mb-3">Price Statistics</h6>
+                    <div className="row g-3">
+                      <div className="col-4">
+                        <small className="text-muted d-block">Lowest</small>
+                        <h5 className="text-success mb-0">₹{minPrice.toFixed(2)}</h5>
+                      </div>
+                      <div className="col-4">
+                        <small className="text-muted d-block">Average</small>
+                        <h5 className="text-primary mb-0">₹{avgPrice.toFixed(2)}</h5>
+                      </div>
+                      <div className="col-4">
+                        <small className="text-muted d-block">Highest</small>
+                        <h5 className="text-danger mb-0">₹{maxPrice.toFixed(2)}</h5>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Store Comparison Table */}
+        <div className="card shadow-sm">
+          <div className="card-header bg-success text-white">
+            <h5 className="mb-0">💊 Available at {medicine.stores.length} Store(s)</h5>
+          </div>
+          <div className="card-body p-0">
+            <div className="table-responsive">
+              <table className="table table-hover mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th style={{ width: "80px" }}>Rank</th>
+                    <th>Store Name</th>
+                    <th>Address</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Batch No.</th>
+                    <th>Expiry Date</th>
+                    <th>Contact</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedStores.map((store, index) => (
+                    <tr key={index} className={index === 0 ? 'table-success' : ''}>
+                      <td>
+                        {index === 0 ? (
+                          <span className="badge bg-success fs-6">
+                            🏆 Best
+                          </span>
+                        ) : (
+                          <span className="text-muted">#{index + 1}</span>
+                        )}
+                      </td>
+                      <td>
+                        <strong>{store.storeName}</strong>
+                      </td>
+                      <td>
+                        <div>
+                          <i className="bi bi-geo-alt-fill text-danger"></i>
+                          <span className="ms-1">
+                            {store.address || "Address not available"}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <span 
+                          className={`badge fs-6 ${
+                            store.price === minPrice 
+                              ? 'bg-success' 
+                              : store.price === maxPrice 
+                              ? 'bg-danger' 
+                              : 'bg-primary'
+                          }`}
+                        >
+                          ₹{store.price.toFixed(2)}
+                        </span>
+                        {store.price === minPrice && (
+                          <div>
+                            <small className="text-success fw-bold">Lowest Price!</small>
+                          </div>
+                        )}
+                      </td>
+                      <td>
+                        <span className={`badge ${store.stock > 10 ? 'bg-success' : 'bg-warning text-dark'}`}>
+                          {store.stock} units
+                        </span>
+                      </td>
+                      <td>
+                        <small>{store.batchNumber || "N/A"}</small>
+                      </td>
+                      <td>
+                        <small>{new Date(store.expiryDate).toLocaleDateString()}</small>
+                      </td>
+                      <td>
+                        {store.contactNo || store.phone ? (
+                          <a 
+                            href={`tel:${store.contactNo || store.phone}`} 
+                            className="btn btn-sm btn-outline-primary"
+                          >
+                            📞 Call
+                          </a>
+                        ) : (
+                          <small className="text-muted">N/A</small>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Savings Alert */}
+        {maxPrice > minPrice && (
+          <div className="alert alert-success mt-4 d-flex align-items-center">
+            <div style={{ fontSize: "3rem" }} className="me-3">💰</div>
+            <div>
+              <h5 className="mb-1">Save up to ₹{(maxPrice - minPrice).toFixed(2)}!</h5>
+              <p className="mb-0">By choosing the store with the lowest price</p>
+            </div>
+          </div>
+        )}
+
+        {/* Store Cards for Mobile View */}
+        <div className="d-md-none mt-4">
+          <h5 className="mb-3">Compare Stores</h5>
+          {sortedStores.map((store, index) => (
+            <div key={index} className="card mb-3 shadow-sm">
+              <div className="card-body">
+                {index === 0 && (
+                  <span className="badge bg-success mb-2">🏆 Best Price</span>
+                )}
+                <h6 className="fw-bold">{store.storeName}</h6>
+                <p className="mb-2">
+                  <i className="bi bi-geo-alt-fill text-danger"></i>
+                  <small className="ms-1">{store.address || "Address not available"}</small>
+                </p>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <span className="badge bg-success fs-6">₹{store.price.toFixed(2)}</span>
+                  <span className="badge bg-secondary">{store.stock} units</span>
+                </div>
+                {(store.contactNo || store.phone) && (
+                  <a 
+                    href={`tel:${store.contactNo || store.phone}`} 
+                    className="btn btn-sm btn-outline-primary w-100"
+                  >
+                    📞 Call Store
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
-}
+};
 
-export default MedicineDetails;
+export default MedicineDetailPage;

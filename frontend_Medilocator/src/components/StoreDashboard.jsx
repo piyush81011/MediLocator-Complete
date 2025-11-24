@@ -63,7 +63,7 @@ const StoreDashboard = () => {
       <div className="flex-grow-1 p-4 vh-100" style={{ overflow: 'auto', backgroundColor: '#f8f9fa' }}>
         
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h1 className="display-5">My Inventory</h1>
+          <h1 className="display-6 fw-bold">My Inventory</h1>
           <button 
             className="btn btn-primary btn-lg" 
             onClick={() => navigate("/store/catalog-search")} // Corrected route from your App.jsx

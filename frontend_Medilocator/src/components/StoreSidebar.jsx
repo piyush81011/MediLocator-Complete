@@ -75,7 +75,7 @@ const AdminSidebar = () => {
           <a 
             href="#" 
             onClick={(e) => { e.preventDefault(); navigate("/store/my-requests"); }} 
-            className="nav-link text-white d-flex align-items-center"
+            className="nav-link text-white d-flex align-items-center fw-bold display-5"
           >
             {/* <FaListAlt className="me-2" /> */}
             My Product Requests

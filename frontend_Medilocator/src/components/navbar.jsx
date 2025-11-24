@@ -69,22 +69,28 @@
 //     </nav>
 //   );
 // }
-
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo.png";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  const { isLoggedIn, user, logout } = useAuth();
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    navigate(`/search?q=${encodeURIComponent(query)}`);
-    setIsMenuOpen(false);
+  const handleLogout = async () => {
+    try {
+      // Optionally call backend logout if you have it
+      // await axios.post("/api/v1/users/logout");
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      logout();
+      navigate("/");
+      setIsMenuOpen(false);
+    }
   };
 
   const closeMenu = () => setIsMenuOpen(false);
@@ -92,25 +98,16 @@ export default function Navbar() {
   return (
     <nav className="navbar navbar-expand-xl navbar-light bg-white shadow-sm">
       <div className="container-fluid px-3 px-xl-4">
-
-        {/* Logo */}
         <Link className="navbar-brand d-flex align-items-center" to="/" onClick={closeMenu}>
           <img src={logo} alt="MediLocator" height="40" className="me-2" />
           <span className="fw-bold text-success fs-5">MediLocator</span>
         </Link>
 
-        {/* Toggle button */}
-        <button
-          className="navbar-toggler border-0"
-          type="button"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
+        <button className="navbar-toggler border-0" type="button" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           <span className="navbar-toggler-icon"></span>
         </button>
 
         <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`}>
-          
-          {/* Left menu */}
           <ul className="navbar-nav me-auto mb-2 mb-xl-0 mt-3 mt-xl-0">
             <li className="nav-item">
               <Link className="nav-link fw-semibold" to="/" onClick={closeMenu}>Home</Link>
@@ -123,22 +120,25 @@ export default function Navbar() {
             </li>
           </ul>
 
-          {/* Search Bar */}
-          <form className="d-flex mb-3 mb-xl-0 me-xl-3" onSubmit={handleSearch}>
-            <input
-              className="form-control"
-              type="search"
-              placeholder="Search medicines..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </form>
+          {/* Removed search bar - it's in the main content */}
 
-          {/* Auth Buttons */}
-          <div className="d-flex flex-column flex-xl-row gap-2">
-            <Link to="/login" className="btn btn-outline-success" onClick={closeMenu}>Login</Link>
-            <Link to="/signup" className="btn btn-success" onClick={closeMenu}>Signup</Link>
-            <Link to="/admin/login" className="btn btn-dark" onClick={closeMenu}>Admin</Link>
+          <div className="d-flex flex-column flex-xl-row gap-2 align-items-xl-center">
+            {isLoggedIn ? (
+              <>
+                <span className="text-muted me-2">
+                  Welcome, <strong>{user?.fullname || user?.name || user?.email || "User"}</strong>
+                </span>
+                <button className="btn btn-outline-danger" onClick={handleLogout}>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="btn btn-outline-success" onClick={closeMenu}>Login</Link>
+                <Link to="/signup" className="btn btn-success" onClick={closeMenu}>Signup</Link>
+                <Link to="/admin/login" className="btn btn-dark" onClick={closeMenu}>Admin</Link>
+              </>
+            )}
           </div>
         </div>
       </div>

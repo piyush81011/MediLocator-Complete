@@ -7,10 +7,9 @@ export default function StoreSignup() {
 
   const [formData, setFormData] = useState({
     storeName: "",
-    ownerName: "",
     email: "",
-    phone: "",
-    license: "",
+    contactNo: "",
+    licenseNumber: "",
     address: "",
     password: "",
   });
@@ -44,8 +43,7 @@ export default function StoreSignup() {
       className="d-flex"
       style={{ background: "#f6fafc", minHeight: "100vh" }}
     >
-      
-      {/* LEFT BLUE GRADIENT PANEL (STORE VERSION) */}
+      {/* LEFT BLUE PANEL */}
       <div
         className="d-none d-md-flex flex-column justify-content-start px-5"
         style={{
@@ -78,21 +76,17 @@ export default function StoreSignup() {
           }}
         >
           Connect with nearby users, manage medicine availability, and help 
-          people access medical support easily and quickly.
+          people access medical support quickly and easily.
         </p>
 
         <img
           src="https://cdn-icons-png.flaticon.com/512/1048/1048930.png"
           alt="pharmacy illustration"
-          style={{
-            width: "220px",
-            marginTop: "25px",
-            opacity: 0.95,
-          }}
+          style={{ width: "220px", marginTop: "25px", opacity: 0.95 }}
         />
       </div>
 
-      {/* RIGHT SIGNUP FORM */}
+      {/* RIGHT FORM AREA */}
       <div
         className="d-flex justify-content-center"
         style={{ flex: 1, marginTop: "60px", marginBottom: "40px" }}
@@ -117,26 +111,12 @@ export default function StoreSignup() {
           {success && <div className="alert alert-success py-2">{success}</div>}
 
           <form onSubmit={handleSubmit}>
-
             {/* Store Name */}
             <div className="mb-3">
               <label className="form-label">Store Name</label>
               <input
                 type="text"
                 name="storeName"
-                className="form-control"
-                required
-                onChange={handleChange}
-                style={{ borderRadius: "10px", height: "40px" }}
-              />
-            </div>
-
-            {/* Owner Name */}
-            <div className="mb-3">
-              <label className="form-label">Owner Name</label>
-              <input
-                type="text"
-                name="ownerName"
                 className="form-control"
                 required
                 onChange={handleChange}
@@ -157,12 +137,12 @@ export default function StoreSignup() {
               />
             </div>
 
-            {/* Phone */}
+            {/* Contact No */}
             <div className="mb-3">
               <label className="form-label">Phone Number</label>
               <input
                 type="number"
-                name="phone"
+                name="contactNo"
                 className="form-control"
                 required
                 onChange={handleChange}
@@ -170,12 +150,12 @@ export default function StoreSignup() {
               />
             </div>
 
-            {/* License */}
+            {/* License Number */}
             <div className="mb-3">
               <label className="form-label">Store License Number</label>
               <input
                 type="text"
-                name="license"
+                name="licenseNumber"
                 className="form-control"
                 required
                 onChange={handleChange}
@@ -209,7 +189,7 @@ export default function StoreSignup() {
               />
             </div>
 
-            {/* Signup Button */}
+            {/* Submit */}
             <button
               type="submit"
               className="btn btn-primary w-100"
@@ -224,7 +204,6 @@ export default function StoreSignup() {
               {loading ? "Creating account…" : "Signup"}
             </button>
 
-            {/* Login Link */}
             <p className="text-center mt-3" style={{ fontSize: "14px" }}>
               Already registered?
               <span
@@ -239,7 +218,6 @@ export default function StoreSignup() {
                 Login here
               </span>
             </p>
-
           </form>
         </div>
       </div>

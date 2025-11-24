@@ -5,9 +5,9 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 // Helper function to escape regex special characters
-const escapeRegex = (string) => {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-};
+// const escapeRegex = (string) => {
+//   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// };
 
 const addProductToInventory = asyncHandler(async (req, res) => {
   const { productId, price, stockQuantity, expiryDate, batchNumber, minStockAlert } = req.body;
@@ -337,6 +337,66 @@ const getExpiringSoonProducts = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, products, "Expiring soon products fetched successfully"));
 });
+
+const escapeRegex = (string) => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+const getAllMedicinesAcrossStores = asyncHandler(async (req, res) => {
+  const results = await StoreInventory.aggregate([
+    {
+      $match: {
+        stockQuantity: { $gt: 0 },
+        isAvailable: true,
+        expiryDate: { $gt: new Date() }
+      }
+    },
+    {
+      $lookup: {
+        from: "productcatalogs",
+        localField: "product",
+        foreignField: "_id",
+        as: "productInfo"
+      }
+    },
+    { $unwind: "$productInfo" },
+    {
+      $lookup: {
+        from: "stores",
+        localField: "store",
+        foreignField: "_id",
+        as: "storeInfo"
+      }
+    },
+    { $unwind: "$storeInfo" },
+    {
+      $group: {
+        _id: "$product",
+        productName: { $first: "$productInfo.name" },
+        brand: { $first: "$productInfo.brand" },
+        genericName: { $first: "$productInfo.genericName" },
+        category: { $first: "$productInfo.category" },
+        requiresPrescription: { $first: "$productInfo.requiresPrescription" },
+        stores: {
+          $push: {
+            storeName: "$storeInfo.storeName",
+            address: "$storeInfo.address",
+            phone: "$storeInfo.phone",
+            price: "$price",
+            stock: "$stockQuantity",
+            batchNumber: "$batchNumber",
+            expiryDate: "$expiryDate"
+          }
+        }
+      }
+    },
+    { $sort: { productName: 1 } }
+  ]);
+
+  return res.status(200).json(new ApiResponse(200, results, "Medicines fetched successfully"));
+});
+
+export { getAllMedicinesAcrossStores };
 
 export {
   addProductToInventory,

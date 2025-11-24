@@ -260,7 +260,7 @@ const BillingPage = () => {
       <AdminSidebar />
       <div className="flex-grow-1 p-4" style={{ backgroundColor: "#f5f5f5", overflow: "auto" }}>
         
-        <h2 className="mb-4">📋 Point of Sale (POS)</h2>
+        <h2 className="mb-4 fw-bold">📋 Point of Sale (POS)</h2>
 
         {/* Success Card */}
         {showBillSuccess && lastBillData && (

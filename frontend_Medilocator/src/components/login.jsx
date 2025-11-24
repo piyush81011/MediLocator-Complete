@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo.png";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -20,12 +22,12 @@ export default function Login() {
 
     try {
       const res = await axios.post("/api/v1/users/login", formData);
-      localStorage.setItem("accessToken", res.data.accessToken);
-      localStorage.setItem("refreshToken", res.data.refreshToken);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      
+      // Use AuthContext login
+      login(res.data.data.user);
 
       setSuccess("Login successful!");
-      setTimeout(() => navigate("/medicines"), 800); // Changed from "/" to "/medicines"
+      setTimeout(() => navigate("/"), 800);
     } catch (err) {
       setError(err.response?.data?.message || "Invalid email or password");
     }
@@ -47,19 +49,16 @@ export default function Login() {
           paddingLeft: "70px",
         }}
       >
-        {/* Logo */}
         <img
           src={logo}
           alt="logo"
           style={{ width: "85px", marginBottom: "25px", filter: "invert(1)" }}
         />
 
-        {/* Heading */}
         <h1 style={{ fontSize: "42px", fontWeight: "700", lineHeight: "1.2" }}>
           Welcome to <br /> MediLocator
         </h1>
 
-        {/* Subtext */}
         <p
           style={{
             fontSize: "17px",
@@ -71,7 +70,6 @@ export default function Login() {
           Find nearby medical stores, compare availability, and order medicines easily.
         </p>
 
-        {/* Illustration */}
         <img
           src="https://cdn-icons-png.flaticon.com/512/2966/2966489.png"
           alt="illustration"
@@ -112,7 +110,6 @@ export default function Login() {
           {success && <div className="alert alert-success py-2">{success}</div>}
 
           <form onSubmit={handleSubmit}>
-            {/* Email */}
             <div className="mb-3">
               <label className="form-label">Email</label>
               <input
@@ -125,7 +122,6 @@ export default function Login() {
               />
             </div>
 
-            {/* Password */}
             <div className="mb-3">
               <label className="form-label">Password</label>
               <input
@@ -138,7 +134,6 @@ export default function Login() {
               />
             </div>
 
-            {/* Login Button */}
             <button
               type="submit"
               className="btn btn-primary w-100"
@@ -153,7 +148,6 @@ export default function Login() {
               {loading ? "Logging in..." : "Login"}
             </button>
 
-            {/* Signup Link */}
             <p className="text-center mt-3" style={{ fontSize: "14px" }}>
               Not registered?
               <span

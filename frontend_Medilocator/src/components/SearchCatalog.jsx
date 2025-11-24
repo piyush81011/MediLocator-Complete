@@ -47,7 +47,7 @@ const ProductCatalogSearch = () => {
     <div className="d-flex vh-100">
       <AdminSidebar />
       <div className="flex-grow-1 p-4 vh-100" style={{ overflow: 'auto', backgroundColor: '#f8f9fa' }}>
-        <h1 className="display-5">Search Master Catalog</h1>
+        <h1 className="display-6 fw-bold">Search Master Catalog</h1>
         <p className="lead">Find a product to add to your store's inventory.</p>
         
         <form onSubmit={(e) => e.preventDefault()} className="d-flex gap-2 my-4">

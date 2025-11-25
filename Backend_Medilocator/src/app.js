@@ -50,7 +50,7 @@ const app = express();
 // This configures your server to accept requests
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173", // Your React app's URL
+    origin: "https://medilocator-xxxx.onrender.com", // Your React app's URL
     credentials: true,
   })
 );

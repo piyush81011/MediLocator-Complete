@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
   proxy: {
     '/api': {
-      target: 'https://medilocator-complete.onrender.com',
+      target: 'https://medilocator-complete.onrender.com/api',
       changeOrigin: true,
       secure: false,
       rewrite: (path) => path.replace(/^\/req/, '') 

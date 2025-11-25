@@ -13,7 +13,7 @@ export default function Detail() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const API_BASE_URL = "http://localhost:8000/api/v1";
+  const API_BASE_URL = "https://medilocator-complete.onrender.com";
 
   useEffect(() => {
     loadMedicines();

@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
   proxy: {
-    '/api': {
+    '/ap': {
       target: 'https://medilocator-complete.onrender.com/api',
       changeOrigin: true,
       secure: false,

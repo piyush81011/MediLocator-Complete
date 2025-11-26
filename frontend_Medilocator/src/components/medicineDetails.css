@@ -1,0 +1,126 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
+.medicine-card-container {
+  display: flex;
+  gap: 20px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  max-width: 800px;
+  margin: 20px auto;
+  font-family: "Poppins", sans-serif;
+}
+
+.medicine-image-section {
+  flex: 1;
+  text-align: center;
+}
+
+.main-image {
+  width: 100%;
+  max-width: 280px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.thumbnail-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0.7;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.thumbnail:hover,
+.thumbnail.active {
+  opacity: 1;
+  border: 2px solid #27ae60;
+}
+
+.medicine-details {
+  flex: 2;
+}
+
+.medicine-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0;
+  color: #222;
+}
+
+.medicine-brand {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 4px 0 12px;
+}
+
+.medicine-quantity {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.medicine-price-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.price {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #27ae60;
+}
+
+.mrp {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.discount {
+  font-size: 0.85rem;
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.per-tablet {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 18px;
+}
+
+.add-to-cart {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.add-to-cart:hover {
+  background: #219150;
+}
+
+
+
+.offer {
+  font-size: 0.8rem;
+  color: #666;
+}

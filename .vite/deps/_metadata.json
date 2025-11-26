@@ -1,0 +1,42 @@
+{
+  "hash": "e47db324",
+  "configHash": "20895514",
+  "lockfileHash": "49837749",
+  "browserHash": "cb39da70",
+  "optimized": {
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "b1c40b15",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "d57370d1",
+      "needsInterop": false
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "3d486bcc",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "6d9a3b95",
+      "needsInterop": true
+    }
+  },
+  "chunks": {
+    "react-CECw5MHl": {
+      "file": "react-CECw5MHl.js",
+      "isDynamicEntry": false
+    },
+    "react-dom-CyfnKOhl": {
+      "file": "react-dom-CyfnKOhl.js",
+      "isDynamicEntry": false
+    }
+  }
+}

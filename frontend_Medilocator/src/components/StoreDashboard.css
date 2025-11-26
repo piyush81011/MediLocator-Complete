@@ -1,0 +1,83 @@
+
+.store-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  font-family: "Poppins", sans-serif;
+}
+
+.store-main {
+  flex: 1;
+  padding: 40px;
+  background-color: #ffffff;
+}
+
+.store-title {
+  font-size: 1.8rem;
+  color: #065f46;
+  margin-bottom: 8px;
+}
+
+.store-subtitle {
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 25px;
+}
+
+.inventory-section {
+  background-color: #f9fafb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.inventory-section h2 {
+  color: #065f46;
+  margin-bottom: 15px;
+}
+
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.inventory-table th,
+.inventory-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.inventory-table th {
+  background-color: #e6f4ea;
+  color: #065f46;
+}
+
+.update-btn,
+.remove-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-right: 8px;
+  font-weight: 500;
+}
+
+.update-btn {
+  background-color: #10b981;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.update-btn:hover {
+  background-color: #059669;
+}
+
+.remove-btn {
+  background-color: #ef4444;
+  color: white;
+}
+
+.remove-btn:hover {
+  background-color: #dc2626;
+}

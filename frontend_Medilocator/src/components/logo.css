@@ -1,0 +1,19 @@
+
+
+
+.logo {
+  border-radius: 20%;
+  -webkit-border-radius: 20%;
+  -moz-border-radius: 20%;
+  -ms-border-radius: 20%;
+  -o-border-radius: 20%;
+}
+
+
+.logo:hover{ border-radius: 80%; -webkit-border-radius: 80%; -moz-border-radius: 80%; -ms-border-radius: 80%; -o-border-radius: 80%;
+box-shadow: rgba(14, 115, 24, 0.3) 0px 0px 0px 3px;
+}
+
+.form-control{
+  font-size: 8px;
+}

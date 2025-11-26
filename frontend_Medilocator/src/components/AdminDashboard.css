@@ -1,0 +1,24 @@
+
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  font-family: 'Poppins', sans-serif;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 40px;
+  background-color: #fdfdfd;
+}
+
+.admin-title {
+  font-size: 2rem;
+  color: #065f46; /* dark green */
+  margin-bottom: 10px;
+}
+
+.admin-subtitle {
+  font-size: 1.1rem;
+  color: #444;
+}

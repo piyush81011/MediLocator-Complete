@@ -1,0 +1,33 @@
+
+body {
+  background: #f8f9fa;  /* soft light gray */
+}
+
+
+.detail{
+  margin: 1rem 1.5rem 1rem 1.5rem ;
+
+}
+.main-container{
+  background: #f8f9fa;
+}
+
+
+
+
+/* Footer */
+.footer {
+  background-color: #eef4ff;
+  color:#4f585e;
+    position: relative;
+  bottom: 0;
+  width: 100%;
+}
+
+.footer .nav-link {
+  color: #4f585e !important;
+}
+
+.footer .nav-link:hover {
+  color: #00ffd5 !important;
+}

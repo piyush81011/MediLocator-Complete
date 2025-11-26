@@ -54,7 +54,11 @@ const UpdateInventoryPage = () => {
     setError(null);
     setSuccess(null);
     try {
+<<<<<<< HEAD
       await axios.patch(`/api/v1//inventory/${inventoryId}`, formData);
+=======
+      await api.patch(`/inventory/${inventoryId}`, formData);
+>>>>>>> dfe38083ad1395dc3a47a3b0d3c96146d65d541d
       setSuccess("Item updated successfully! Redirecting...");
       setTimeout(() => navigate("/store/inventory"), 1500);
     } catch (err) {

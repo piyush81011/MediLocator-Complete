@@ -36,6 +36,7 @@ export default function Login() {
   };
 
   return (
+<<<<<<< HEAD
     <div style={{ minHeight: "100vh", backgroundColor: "#f8f9fa" }}>
       <div className="container-fluid">
         <div className="row min-vh-100">
@@ -211,6 +212,135 @@ export default function Login() {
             </div>
           </div>
 
+=======
+    <div className="d-flex vh-100" style={{ background: "#f6fafc" }}>
+      
+      {/* LEFT MODERN BLUE GRADIENT PANEL */}
+      <div
+        className="d-none d-md-flex flex-column justify-content-center px-5"
+        style={{
+          flex: 1.2,
+          background: "linear-gradient(135deg, #1FA2FF, #0073FF)",
+          borderRadius: "0 40px 40px 0",
+          color: "white",
+          paddingLeft: "70px",
+        }}
+      >
+        <img
+          src={logo}
+          alt="logo"
+          style={{ width: "85px", marginBottom: "25px", filter: "invert(1)" }}
+        />
+
+        <h1 style={{ fontSize: "42px", fontWeight: "700", lineHeight: "1.2" }}>
+          Welcome to <br /> MediLocator
+        </h1>
+
+        <p
+          style={{
+            fontSize: "17px",
+            maxWidth: "350px",
+            opacity: 0.9,
+            marginTop: "10px",
+          }}
+        >
+          Find nearby medical stores, compare availability, and order medicines easily.
+        </p>
+
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/2966/2966489.png"
+          alt="illustration"
+          style={{
+            width: "260px",
+            marginTop: "40px",
+            opacity: 0.95,
+          }}
+        />
+      </div>
+
+      {/* RIGHT LOGIN CARD */}
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ flex: 1 }}
+      >
+        <div
+          className="card shadow-lg p-4"
+          style={{
+            width: "350px",
+            borderRadius: "18px",
+            background: "#ffffff",
+            border: "1px solid #e5e7eb",
+          }}
+        >
+          <div className="text-center mb-3">
+            <img src={logo} alt="logo" style={{ width: "60px" }} />
+          </div>
+
+          <h3
+            className="text-center mb-3"
+            style={{ fontWeight: "600", color: "#333" }}
+          >
+            Login
+          </h3>
+
+          {error && <div className="alert alert-danger py-2">{error}</div>}
+          {success && <div className="alert alert-success py-2">{success}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                name="email"
+                className="form-control"
+                required
+                onChange={handleChange}
+                style={{ borderRadius: "10px", height: "40px" }}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Password</label>
+              <input
+                type="password"
+                name="password"
+                className="form-control"
+                required
+                onChange={handleChange}
+                style={{ borderRadius: "10px", height: "40px" }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary w-100"
+              disabled={loading}
+              style={{
+                height: "43px",
+                fontSize: "15px",
+                fontWeight: "600",
+                borderRadius: "10px",
+              }}
+            >
+              {loading ? "Logging in..." : "Login"}
+            </button>
+
+            <p className="text-center mt-3" style={{ fontSize: "14px" }}>
+              Not registered?
+              <span
+                onClick={() => navigate("/signup")}
+                style={{
+                  color: "#0073FF",
+                  cursor: "pointer",
+                  marginLeft: "3px",
+                  textDecoration: "underline",
+                }}
+              >
+                Signup now
+              </span>
+            </p>
+          </form>
+>>>>>>> dfe38083ad1395dc3a47a3b0d3c96146d65d541d
         </div>
       </div>
     </div>

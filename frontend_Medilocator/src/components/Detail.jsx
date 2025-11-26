@@ -11,7 +11,13 @@ export default function Detail() {
   const [filteredMedicines, setFilteredMedicines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+<<<<<<< HEAD
   const [selectedCategory, setSelectedCategory] = useState("all");;
+=======
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
+  const API_BASE_URL = "https://medilocator-complete.onrender.com/api/v1";
+>>>>>>> dfe38083ad1395dc3a47a3b0d3c96146d65d541d
 
   useEffect(() => {
     loadMedicines();
@@ -24,7 +30,11 @@ export default function Detail() {
   const loadMedicines = async () => {
     setLoading(true);
     try {
+<<<<<<< HEAD
       const res = await axios.get("/api/v1/customer/all-medicines");
+=======
+      const res = await axios.get(`${API_BASE_URL}/customer/all-medicines`);
+>>>>>>> dfe38083ad1395dc3a47a3b0d3c96146d65d541d
       const allMedicines = res.data.data || [];
       setMedicines(allMedicines);
     } catch (err) {

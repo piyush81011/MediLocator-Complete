@@ -18,7 +18,7 @@ const AdminSidebar = () => {
 
   const handleLogout = async () => {
     try {
-      await api.post("/stores/logout");
+      await axios.post("https://medilocator-complete.onrender.com/stores/logout");
     } catch (error) {
       console.error("Server logout failed:", error);
     } finally {

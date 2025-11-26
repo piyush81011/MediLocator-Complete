@@ -95,7 +95,7 @@ const BillListPage = () => {
   const fetchBills = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/billing/history");
+      const res = await axios.get("https://medilocator-complete.onrender.com/billing/history");
       setBills(res.data.data || []);
     } catch (err) {
       setError("Failed to fetch sales history.");

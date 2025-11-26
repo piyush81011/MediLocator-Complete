@@ -17,7 +17,7 @@ export default function SearchPage() {
   const [page, setPage] = useState(1);
 
   const loadProducts = async () => {
-    const res = await api.get("/search/products", { params: { ...filters, page } });
+    const res = await axios.get("https://medilocator-complete.onrender.com/search/products", { params: { ...filters, page } });
     setProducts(res.data.data.products);
     setTotalPages(res.data.data.totalPages);
   };

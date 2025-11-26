@@ -13,7 +13,7 @@ export default function SearchResults() {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const res = await api.get(`/products/search?name=${query}`);
+        const res = await axios.get(`https://medilocator-complete.onrender.com/products/search?name=${query}`);
         setResults(res.data);
       } catch (err) {
         console.log("Search error:", err);

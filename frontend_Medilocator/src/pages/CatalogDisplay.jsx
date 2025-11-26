@@ -43,7 +43,7 @@ const CatalogDisplay = () => {
       setError(null);
       try {
         // Use the PUBLIC route /api/v1/products
-        const res = await axios.get('/api/v1/products', {
+        const res = await axios.get('https://medilocator-complete.onrender.com/api/v1/products', {
           params: {
             page: currentPage,
             limit: 20,

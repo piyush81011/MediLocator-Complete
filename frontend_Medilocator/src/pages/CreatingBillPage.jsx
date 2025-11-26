@@ -26,7 +26,7 @@ const BillingPage = () => {
 
     const delay = setTimeout(async () => {
       try {
-        const res = await api.get("/inventory/search", {
+        const res = await api.get("https://medilocator-complete.onrender.com/inventory/search", {
           params: { search: searchTerm },
         });
         setSearchResults(res.data?.data || []);

@@ -20,7 +20,7 @@ function MedicineDetails() {
     const fetchProduct = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`/api/v1/products/${productId}`);
+        const res = await axios.get(`https://medilocator-complete.onrender.com/api/v1/products/${productId}`);
         setProduct(res.data.data);
       } catch (err) {
         setError("Could not find product");

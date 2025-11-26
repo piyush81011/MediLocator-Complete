@@ -15,7 +15,7 @@ const StoreDashboard = () => {
     setLoading(true);
     try {
       // This calls your 'getStoreInventory' controller
-      const res = await api.get("/inventory/"); 
+      const res = await axios.get("https://medilocator-complete.onrender.com//inventory/"); 
       setInventory(res.data.data.inventory);
       setError(null);
     } catch (err) {
@@ -36,7 +36,7 @@ const StoreDashboard = () => {
     if (window.confirm("Are you sure you want to delete this item?")) {
       try {
         // This calls your 'deleteInventoryItem' controller
-        await api.delete(`/inventory/${inventoryId}`);
+        await axios.delete(`https://medilocator-complete.onrender.com/inventory/${inventoryId}`);
         // Refresh the list after deleting
         fetchInventory(); 
       } catch (err) {

@@ -24,7 +24,7 @@ export default function StoreLogin() {
     setLoading(true);
 
     try {
-      const res = await axios.post("/api/v1/stores/login", formData);
+      const res = await axios.post("https://medilocator-complete.onrender.com/api/v1/stores/login", formData);
 
       const { accessToken, refreshToken, store } = res.data.data || {};
 

@@ -20,7 +20,7 @@ const SearchCatalog = () => {
 
     const delay = setTimeout(async () => {
       try {
-        const res = await api.get("/catalog/search", {
+        const res = await axios.get("https://medilocator-complete.onrender.com/catalog/search", {
           params: { search },
         });
         setProducts(res.data.data.products);

@@ -15,7 +15,7 @@ const MasterCatalogAdmin = () => {
       setLoading(true);
       try {
         // 🔥 Only fetch medicines
-        const res = await api.get("/catalog?category=medicine");
+        const res = await axios.get("https://medilocator-complete.onrender.com/catalog?category=medicine");
 
         console.log("API Response:", res.data);
 

@@ -27,7 +27,7 @@ const ProductRequestForm = () => {
     setError(null);
     setSuccess(null);
     try {
-      await api.post("/requests", formData);
+      await axios.post("https://medilocator-complete.onrender.com/requests", formData);
       setSuccess("Product request submitted successfully!");
       setTimeout(() => navigate("/store/my-requests"), 2000);
     } catch (err) {

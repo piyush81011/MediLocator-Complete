@@ -15,7 +15,7 @@ const StoreDashboard = () => {
     setLoading(true);
     try {
       // This calls your 'getStoreInventory' controller
-      const res = await axios.get("https://medilocator-complete.onrender.com//inventory/"); 
+      const res = await axios.get("https://medilocator-complete.onrender.com/api/v1/inventory/"); 
       setInventory(res.data.data.inventory);
       setError(null);
     } catch (err) {
@@ -36,7 +36,7 @@ const StoreDashboard = () => {
     if (window.confirm("Are you sure you want to delete this item?")) {
       try {
         // This calls your 'deleteInventoryItem' controller
-        await axios.delete(`https://medilocator-complete.onrender.com/inventory/${inventoryId}`);
+        await axios.delete(`https://medilocator-complete.onrender.com/api/v1/inventory/${inventoryId}`);
         // Refresh the list after deleting
         fetchInventory(); 
       } catch (err) {
@@ -49,7 +49,7 @@ const StoreDashboard = () => {
   const handleEdit = (item) => {
     // Navigate to the edit page (you will need to create this route/page)
     // We pass the item data to the next page to pre-fill the form
-    navigate(`/store/inventory/edit/${item._id}`, { state: { currentItem: item } });
+    navigate(`api/v1/store/inventory/edit/${item._id}`, { state: { currentItem: item } });
   };
 
   return (
@@ -66,7 +66,7 @@ const StoreDashboard = () => {
           <h1 className="display-6 fw-bold">My Inventory</h1>
           <button 
             className="btn btn-primary btn-lg" 
-            onClick={() => navigate("/store/catalog-search")} // Corrected route from your App.jsx
+            onClick={() => navigate("api/v1/store/catalog-search")} // Corrected route from your App.jsx
           >
             + Add New Product
           </button>

@@ -11,7 +11,7 @@ const ProductRequestList = () => {
     const fetchRequests = async () => {
       setLoading(true);
       try {
-        const res = await axios.get("https://medilocator-complete.onrender.com/requests");
+        const res = await axios.get("https://medilocator-complete.onrender.com/api/v1/requests");
         setRequests(res.data.data.requests);
       } catch (err) {
         setError("Failed to load requests.");

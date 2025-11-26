@@ -28,7 +28,7 @@ export default function StoreSignup() {
     setLoading(true);
 
     try {
-      await axios.post("/api/v1/stores/register", formData);
+      await axios.post("https://medilocator-complete.onrender.com/api/v1/stores/register", formData);
       setSuccess("Store registered successfully! Redirecting...");
       setTimeout(() => navigate("/admin/login"), 1200);
     } catch (err) {
@@ -39,186 +39,235 @@ export default function StoreSignup() {
   };
 
   return (
-    <div
-      className="d-flex"
-      style={{ background: "#f6fafc", minHeight: "100vh" }}
-    >
-      {/* LEFT BLUE PANEL */}
-      <div
-        className="d-none d-md-flex flex-column justify-content-start px-5"
-        style={{
-          flex: 1.2,
-          background: "linear-gradient(135deg, #1FA2FF, #0073FF)",
-          borderRadius: "0 40px 40px 0",
-          color: "white",
-          paddingLeft: "70px",
-          paddingTop: "80px",
-          paddingBottom: "60px",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "38px",
-            fontWeight: "700",
-            lineHeight: "1.2",
-            marginBottom: "15px",
-          }}
-        >
-          Register Your <br /> Medical Store
-        </h1>
+    <div style={{ minHeight: "100vh", backgroundColor: "#f8f9fa" }}>
+      <div className="container-fluid">
+        <div className="row min-vh-100">
+          
+          {/* LEFT SIDE - Store Registration Info */}
+          <div className="col-lg-6 d-none d-lg-flex align-items-center justify-content-center" style={{ backgroundColor: "#ffffff" }}>
+            <div style={{ maxWidth: "500px", padding: "40px" }}>
+              <div className="mb-4" style={{ 
+                width: "70px", 
+                height: "70px", 
+                backgroundColor: "#e3f2fd", 
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "2rem"
+              }}>
+                🏥
+              </div>
+              
+              <h1 className="fw-bold mb-4" style={{ fontSize: "2.5rem", color: "#1a1a1a" }}>
+                Register Your Pharmacy
+              </h1>
+              <p className="text-muted mb-5" style={{ fontSize: "1.1rem", lineHeight: "1.8" }}>
+                Join MediLocator's network of pharmacies and connect with customers looking for medicines in your area.
+              </p>
 
-        <p
-          style={{
-            fontSize: "17px",
-            maxWidth: "360px",
-            opacity: 0.92,
-            marginBottom: "20px",
-          }}
-        >
-          Connect with nearby users, manage medicine availability, and help 
-          people access medical support quickly and easily.
-        </p>
+              <div className="mb-4">
+                <div className="d-flex align-items-start mb-4">
+                  <div style={{ 
+                    width: "50px", 
+                    height: "50px", 
+                    backgroundColor: "#e8f5e9", 
+                    borderRadius: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginRight: "20px",
+                    fontSize: "1.5rem"
+                  }}>
+                    🎯
+                  </div>
+                  <div>
+                    <h5 className="fw-semibold mb-2">Reach More Customers</h5>
+                    <p className="text-muted mb-0">Make your pharmacy visible to nearby users</p>
+                  </div>
+                </div>
 
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/1048/1048930.png"
-          alt="pharmacy illustration"
-          style={{ width: "220px", marginTop: "25px", opacity: 0.95 }}
-        />
-      </div>
+                <div className="d-flex align-items-start mb-4">
+                  <div style={{ 
+                    width: "50px", 
+                    height: "50px", 
+                    backgroundColor: "#fef3c7", 
+                    borderRadius: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginRight: "20px",
+                    fontSize: "1.5rem"
+                  }}>
+                    📊
+                  </div>
+                  <div>
+                    <h5 className="fw-semibold mb-2">Manage Inventory</h5>
+                    <p className="text-muted mb-0">Easy tools to track and update your stock</p>
+                  </div>
+                </div>
 
-      {/* RIGHT FORM AREA */}
-      <div
-        className="d-flex justify-content-center"
-        style={{ flex: 1, marginTop: "60px", marginBottom: "40px" }}
-      >
-        <div
-          className="card shadow-lg p-4"
-          style={{
-            width: "380px",
-            borderRadius: "18px",
-            background: "#ffffff",
-            border: "1px solid #e5e7eb",
-          }}
-        >
-          <h3
-            className="text-center mb-4"
-            style={{ fontWeight: "600", color: "#333" }}
-          >
-            Store Signup
-          </h3>
-
-          {error && <div className="alert alert-danger py-2">{error}</div>}
-          {success && <div className="alert alert-success py-2">{success}</div>}
-
-          <form onSubmit={handleSubmit}>
-            {/* Store Name */}
-            <div className="mb-3">
-              <label className="form-label">Store Name</label>
-              <input
-                type="text"
-                name="storeName"
-                className="form-control"
-                required
-                onChange={handleChange}
-                style={{ borderRadius: "10px", height: "40px" }}
-              />
+                <div className="d-flex align-items-start">
+                  <div style={{ 
+                    width: "50px", 
+                    height: "50px", 
+                    backgroundColor: "#f3e8ff", 
+                    borderRadius: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginRight: "20px",
+                    fontSize: "1.5rem"
+                  }}>
+                    ⚡
+                  </div>
+                  <div>
+                    <h5 className="fw-semibold mb-2">Quick Setup</h5>
+                    <p className="text-muted mb-0">Get started in minutes with our simple process</p>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
 
-            {/* Email */}
-            <div className="mb-3">
-              <label className="form-label">Store Email</label>
-              <input
-                type="email"
-                name="email"
-                className="form-control"
-                required
-                onChange={handleChange}
-                style={{ borderRadius: "10px", height: "40px" }}
-              />
+          {/* RIGHT SIDE - Signup Form */}
+          <div className="col-lg-6 d-flex align-items-center justify-content-center" style={{ padding: "40px 20px" }}>
+            <div style={{ width: "100%", maxWidth: "450px" }}>
+              <div className="card border-0 shadow-sm">
+                <div className="card-body p-4 p-md-5">
+                  
+                  {/* Header */}
+                  <div className="mb-4">
+                    <h2 className="fw-bold mb-2">Create Store Account</h2>
+                    <p className="text-muted mb-0">Register your pharmacy with us</p>
+                  </div>
+
+                  {/* Alerts */}
+                  {error && (
+                    <div className="alert alert-danger">{error}</div>
+                  )}
+                  
+                  {success && (
+                    <div className="alert alert-success">{success}</div>
+                  )}
+
+                  {/* Form */}
+                  <form onSubmit={handleSubmit}>
+                    
+                    <div className="mb-3">
+                      <label className="form-label">Store Name</label>
+                      <input
+                        type="text"
+                        name="storeName"
+                        required
+                        value={formData.storeName}
+                        onChange={handleChange}
+                        className="form-control"
+                        placeholder="Your Pharmacy Name"
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">Store Email</label>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="form-control"
+                        placeholder="store@example.com"
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">Phone Number</label>
+                      <input
+                        type="tel"
+                        name="contactNo"
+                        required
+                        value={formData.contactNo}
+                        onChange={handleChange}
+                        className="form-control"
+                        placeholder="1234567890"
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">License Number</label>
+                      <input
+                        type="text"
+                        name="licenseNumber"
+                        required
+                        value={formData.licenseNumber}
+                        onChange={handleChange}
+                        className="form-control"
+                        placeholder="Your pharmacy license number"
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label">Store Address</label>
+                      <textarea
+                        name="address"
+                        required
+                        value={formData.address}
+                        onChange={handleChange}
+                        className="form-control"
+                        rows="2"
+                        placeholder="Full store address"
+                      ></textarea>
+                    </div>
+
+                    <div className="mb-4">
+                      <label className="form-label">Password</label>
+                      <input
+                        type="password"
+                        name="password"
+                        required
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="form-control"
+                        placeholder="Create a strong password"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="btn btn-primary w-100 mb-3"
+                      style={{ height: "45px" }}
+                    >
+                      {loading ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2"></span>
+                          Creating account...
+                        </>
+                      ) : (
+                        "Register Store"
+                      )}
+                    </button>
+
+                    <p className="text-center mb-0">
+                      Already registered?{" "}
+                      <a
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigate("/admin/login");
+                        }}
+                        className="text-decoration-none fw-semibold"
+                      >
+                        Sign in
+                      </a>
+                    </p>
+                  </form>
+
+                </div>
+              </div>
             </div>
+          </div>
 
-            {/* Contact No */}
-            <div className="mb-3">
-              <label className="form-label">Phone Number</label>
-              <input
-                type="number"
-                name="contactNo"
-                className="form-control"
-                required
-                onChange={handleChange}
-                style={{ borderRadius: "10px", height: "40px" }}
-              />
-            </div>
-
-            {/* License Number */}
-            <div className="mb-3">
-              <label className="form-label">Store License Number</label>
-              <input
-                type="text"
-                name="licenseNumber"
-                className="form-control"
-                required
-                onChange={handleChange}
-                style={{ borderRadius: "10px", height: "40px" }}
-              />
-            </div>
-
-            {/* Address */}
-            <div className="mb-3">
-              <label className="form-label">Store Address</label>
-              <textarea
-                name="address"
-                className="form-control"
-                rows="2"
-                required
-                onChange={handleChange}
-                style={{ borderRadius: "10px" }}
-              ></textarea>
-            </div>
-
-            {/* Password */}
-            <div className="mb-3">
-              <label className="form-label">Password</label>
-              <input
-                type="password"
-                name="password"
-                className="form-control"
-                required
-                onChange={handleChange}
-                style={{ borderRadius: "10px", height: "40px" }}
-              />
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              className="btn btn-primary w-100"
-              disabled={loading}
-              style={{
-                height: "43px",
-                fontSize: "15px",
-                fontWeight: "600",
-                borderRadius: "10px",
-              }}
-            >
-              {loading ? "Creating account…" : "Signup"}
-            </button>
-
-            <p className="text-center mt-3" style={{ fontSize: "14px" }}>
-              Already registered?
-              <span
-                onClick={() => navigate("/admin/login")}
-                style={{
-                  color: "#0073FF",
-                  cursor: "pointer",
-                  marginLeft: "3px",
-                  textDecoration: "underline",
-                }}
-              >
-                Login here
-              </span>
-            </p>
-          </form>
         </div>
       </div>
     </div>

@@ -27,10 +27,8 @@ export default function Login() {
     setSuccess("");
 
     try {
-      // ---- WORKS WITH YOUR VITE PROXY ----
-      const res = await axios.post("/api/v1/users/login", formData);
+      const res = await axios.post("https://medilocator-complete.onrender.com/api/v1/users/login", formData);
 
-      // Save user in AuthContext
       login(res.data.data.user);
 
       setSuccess("Login successful!");
@@ -43,113 +41,165 @@ export default function Login() {
   };
 
   return (
-    <div className="d-flex vh-100" style={{ background: "#f6fafc" }}>
-      
-      {/* LEFT PANEL */}
-      <div
-        className="d-none d-md-flex flex-column justify-content-center px-5"
-        style={{
-          flex: 1.2,
-          background: "linear-gradient(135deg, #1FA2FF, #0073FF)",
-          borderRadius: "0 40px 40px 0",
-          color: "white",
-        }}
-      >
-        <img
-          src={logo}
-          alt="logo"
-          style={{ width: "80px", marginBottom: "25px", filter: "invert(1)" }}
-        />
+    <div style={{ minHeight: "100vh", backgroundColor: "#f8f9fa" }}>
+      <div className="container-fluid">
+        <div className="row min-vh-100">
 
-        <h1 style={{ fontSize: "40px", fontWeight: "700", lineHeight: "1.2" }}>
-          Welcome Back <br /> to MediLocator
-        </h1>
+          {/* LEFT PANEL – same design as Signup */}
+          <div
+            className="col-lg-6 d-none d-lg-flex align-items-center justify-content-center"
+            style={{ backgroundColor: "#ffffff" }}
+          >
+            <div style={{ maxWidth: "500px", padding: "40px" }}>
+              <img src={logo} alt="logo" style={{ width: "80px" }} />
 
-        <p style={{ fontSize: "17px", maxWidth: "350px", opacity: 0.9 }}>
-          Find nearby medical stores, compare availability, and save money!
-        </p>
-      </div>
+              <h1
+                className="fw-bold mb-4 mt-4"
+                style={{ fontSize: "2.5rem", color: "#1a1a1a" }}
+              >
+                Welcome Back to MediLocator
+              </h1>
 
-      {/* RIGHT PANEL (Login form) */}
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ flex: 1 }}
-      >
-        <div
-          className="card shadow-lg p-4"
-          style={{
-            width: "360px",
-            borderRadius: "18px",
-            background: "#ffffff",
-            border: "1px solid #e5e7eb",
-          }}
-        >
-          <div className="text-center mb-3">
-            <img src={logo} alt="logo" style={{ width: "65px" }} />
+              <p
+                className="text-muted mb-5"
+                style={{ fontSize: "1.1rem", lineHeight: "1.8" }}
+              >
+                Log in to access nearby pharmacies, track medicine availability, and compare prices easily.
+              </p>
+
+              <div className="mb-4">
+                <div className="d-flex align-items-start mb-4">
+                  <div
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      backgroundColor: "#e3f2fd",
+                      borderRadius: "10px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginRight: "20px",
+                      fontSize: "1.5rem",
+                    }}
+                  >
+                    🔐
+                  </div>
+                  <div>
+                    <h5 className="fw-semibold mb-2">Secure Login</h5>
+                    <p className="text-muted mb-0">
+                      Your account and data are safely protected.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="d-flex align-items-start mb-4">
+                  <div
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      backgroundColor: "#fce4ec",
+                      borderRadius: "10px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginRight: "20px",
+                      fontSize: "1.5rem",
+                    }}
+                  >
+                    📱
+                  </div>
+                  <div>
+                    <h5 className="fw-semibold mb-2">Smart Dashboard</h5>
+                    <p className="text-muted mb-0">
+                      Access all features in one place.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <h3 className="text-center mb-3" style={{ fontWeight: "600" }}>
-            Login
-          </h3>
+          {/* RIGHT PANEL – Login form */}
+          <div
+            className="col-lg-6 d-flex align-items-center justify-content-center"
+            style={{ padding: "40px 20px" }}
+          >
+            <div style={{ width: "100%", maxWidth: "450px" }}>
+              <div className="card border-0 shadow-sm">
+                <div className="card-body p-4 p-md-5">
 
-          {error && <div className="alert alert-danger py-2">{error}</div>}
-          {success && <div className="alert alert-success py-2">{success}</div>}
+                  <div className="text-center mb-3">
+                    <img src={logo} alt="logo" style={{ width: "65px" }} />
+                  </div>
 
-          <form onSubmit={handleSubmit}>
-            {/* Email */}
-            <div className="mb-3">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                name="email"
-                required
-                className="form-control"
-                value={formData.email}
-                onChange={handleChange}
-                style={{ borderRadius: "10px", height: "40px" }}
-              />
+                  <div className="mb-4 text-center">
+                    <h2 className="fw-bold mb-2">Login</h2>
+                    <p className="text-muted mb-0">Access your MediLocator account</p>
+                  </div>
+
+                  {error && (
+                    <div className="alert alert-danger py-2">{error}</div>
+                  )}
+                  {success && (
+                    <div className="alert alert-success py-2">{success}</div>
+                  )}
+
+                  <form onSubmit={handleSubmit}>
+                    <div className="mb-3">
+                      <label className="form-label">Email</label>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        className="form-control"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="you@example.com"
+                      />
+                    </div>
+
+                    <div className="mb-4">
+                      <label className="form-label">Password</label>
+                      <input
+                        type="password"
+                        name="password"
+                        required
+                        className="form-control"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Enter your password"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="btn btn-primary w-100 mb-3"
+                      style={{ height: "45px" }}
+                    >
+                      {loading ? "Logging in..." : "Login"}
+                    </button>
+
+                    <p className="text-center mb-0">
+                      Don’t have an account?{" "}
+                      <span
+                        onClick={() => navigate("/signup")}
+                        style={{
+                          cursor: "pointer",
+                          color: "#0073FF",
+                          fontWeight: "600",
+                        }}
+                      >
+                        Sign up now
+                      </span>
+                    </p>
+                  </form>
+
+                </div>
+              </div>
             </div>
+          </div>
 
-            {/* Password */}
-            <div className="mb-3">
-              <label className="form-label">Password</label>
-              <input
-                type="password"
-                name="password"
-                required
-                className="form-control"
-                value={formData.password}
-                onChange={handleChange}
-                style={{ borderRadius: "10px", height: "40px" }}
-              />
-            </div>
-
-            {/* Login Button */}
-            <button
-              type="submit"
-              className="btn btn-primary w-100"
-              disabled={loading}
-              style={{ height: "43px", fontWeight: "600", borderRadius: "10px" }}
-            >
-              {loading ? "Logging in..." : "Login"}
-            </button>
-
-            {/* Signup Link */}
-            <p className="text-center mt-3" style={{ fontSize: "14px" }}>
-              Not registered?
-              <span
-                onClick={() => navigate("/signup")}
-                style={{
-                  color: "#0073FF",
-                  cursor: "pointer",
-                  marginLeft: "3px",
-                  textDecoration: "underline",
-                }}
-              >
-                Signup now
-              </span>
-            </p>
-          </form>
         </div>
       </div>
     </div>

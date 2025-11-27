@@ -27,7 +27,7 @@ export default function Login() {
     setSuccess("");
 
     try {
-      const res = await axios.post("https://medilocator-complete.onrender.com/api/v1/users/login", formData);
+      const res = await api.post("/users/login", formData);
 
       login(res.data.data.user);
 

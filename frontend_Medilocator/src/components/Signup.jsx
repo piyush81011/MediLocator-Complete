@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../utils/api";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      await axios.post("https://medilocator-complete.onrender.com/api/v1/users/register", formData);
+      await api.post("/users/register", formData);
 
       setSuccess("Signup successful! Redirecting...");
       setTimeout(() => navigate("/login"), 1000);

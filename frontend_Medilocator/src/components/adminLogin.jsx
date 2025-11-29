@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../utils/api";
 
 export default function StoreLogin() {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function StoreLogin() {
     setLoading(true);
 
     try {
-      const res = await axios.post("https://medilocator-complete.onrender.com/api/v1/stores/login", formData);
+      const res = await api.post("/stores/login", formData);
 
       const { accessToken, refreshToken, store } = res.data.data || {};
 

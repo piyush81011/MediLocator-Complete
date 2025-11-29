@@ -28,7 +28,7 @@ export default function StoreSignup() {
     setLoading(true);
 
     try {
-      await axios.post("https://medilocator-complete.onrender.com/api/v1/stores/register", formData);
+      await api.post("/stores/register", formData);
       setSuccess("Store registered successfully! Redirecting...");
       setTimeout(() => navigate("/admin/login"), 1200);
     } catch (err) {

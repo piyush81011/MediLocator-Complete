@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo.png";
+import api from "../utils/api";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -28,7 +29,6 @@ export default function Login() {
 
     try {
       const res = await api.post("/users/login", formData);
-
       login(res.data.data.user);
 
       setSuccess("Login successful!");

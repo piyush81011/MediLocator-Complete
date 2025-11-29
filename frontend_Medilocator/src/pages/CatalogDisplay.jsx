@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios'; // Use raw axios for public, no-auth requests
 import { useNavigate } from 'react-router-dom';
+import api from '../utils/api';
 
 const ProductCard = ({ product, onViewDetails }) => {
   return (
@@ -43,7 +44,7 @@ const CatalogDisplay = () => {
       setError(null);
       try {
         // Use the PUBLIC route /api/v1/products
-        const res = await axios.get('https://medilocator-complete.onrender.com/api/v1/products', {
+        const res = await api.get('/products', {
           params: {
             page: currentPage,
             limit: 20,

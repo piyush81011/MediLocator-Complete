@@ -58,8 +58,7 @@ const UpdateInventoryPage = () => {
 
     try {
       // ✨ FIXED: Correct endpoint & removed proxy conflicts
-      await axios.patch(
-        `https://medilocator-complete.onrender.com/api/v1/inventory/${inventoryId}`,
+      await api.patch(`/inventory/${inventoryId}`,
         formData,
         {
           headers: {

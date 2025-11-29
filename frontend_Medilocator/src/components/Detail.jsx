@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
+import api from "../utils/api";
 
 export default function Detail() {
   const navigate = useNavigate();
@@ -23,9 +24,7 @@ export default function Detail() {
 
   const loadMedicines = async () => {
     try {
-      const res = await axios.get(
-        "https://medilocator-complete.onrender.com/api/v1/customer/all-medicines"
-      );
+     const res = await api.get("/customer/all-medicines");;
       setMedicines(res.data.data || []);
     } catch (err) {
       console.error("Error fetching medicines", err);

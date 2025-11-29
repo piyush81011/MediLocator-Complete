@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "../utils/api";
 
 export default function AddStock() {
   const { state } = useLocation();
@@ -53,19 +54,25 @@ export default function AddStock() {
       setError("Please select an expiry date");
       return false;
     }
-
+    
     const today = new Date();
     const expiry = new Date(formData.expiryDate);
     if (expiry <= today) {
       setError("Expiry date must be in the future");
       return false;
     }
+    
+    // if (!formData.batchNumber || formData.batchNumber.trim() === "") {
+    //   setError("Please enter a batch number");
+    //   return false;
+    // }
+    
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (!validateForm()) {
       return;
     }
@@ -75,15 +82,14 @@ export default function AddStock() {
 
     try {
       const token = localStorage.getItem("accessToken");
-
+      
       if (!token) {
         setError("Please login first");
         setTimeout(() => navigate('/store'), 2000);
         return;
       }
 
-      const response = await api.post(
-        "/inventory",
+      const response = await api.post("/inventory/",
         {
           productId: medicine._id || medicine.id,
           price: parseFloat(formData.price),
@@ -91,6 +97,13 @@ export default function AddStock() {
           expiryDate: formData.expiryDate,
           batchNumber: formData.batchNumber.trim(),
           minStockAlert: parseInt(formData.minStockAlert),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
         }
       );
 
@@ -102,7 +115,7 @@ export default function AddStock() {
       }
     } catch (err) {
       console.error("Error adding to inventory:", err);
-
+      
       if (err.response?.status === 401) {
         setError("Session expired. Please login again.");
         setTimeout(() => navigate('/store/login'), 2000);
@@ -143,43 +156,43 @@ export default function AddStock() {
                   <span className="badge bg-warning text-dark">⚕️ Rx Required</span>
                 )}
               </div>
-
+              
               <hr />
-
+              
               <div className="row g-3">
                 <div className="col-md-6">
                   <small className="text-muted d-block mb-1">Brand</small>
                   <strong>{medicine.brand}</strong>
                 </div>
-
+                
                 {medicine.genericName && (
                   <div className="col-md-6">
                     <small className="text-muted d-block mb-1">Generic Name</small>
                     <strong>{medicine.genericName}</strong>
                   </div>
                 )}
-
+                
                 {medicine.category && (
                   <div className="col-md-6">
                     <small className="text-muted d-block mb-1">Category</small>
                     <span className="badge bg-info text-capitalize">{medicine.category}</span>
                   </div>
                 )}
-
+                
                 {medicine.dosageForm && (
                   <div className="col-md-6">
                     <small className="text-muted d-block mb-1">Dosage Form</small>
                     <strong>{medicine.dosageForm}</strong>
                   </div>
                 )}
-
+                
                 {medicine.packSize && (
                   <div className="col-md-6">
                     <small className="text-muted d-block mb-1">Pack Size</small>
                     <strong>{medicine.packSize}</strong>
                   </div>
                 )}
-
+                
                 {medicine.manufacturer && (
                   <div className="col-md-6">
                     <small className="text-muted d-block mb-1">Manufacturer</small>

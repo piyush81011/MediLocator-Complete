@@ -67,8 +67,8 @@ export default function AddStockPage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post(
-        "https://medilocator-complete.onrender.com/api/v1/inventory/", 
+      const response = await api.post(
+        "/inventory/", 
         {
           productId: medicine._id,
           price: parseFloat(formData.price),

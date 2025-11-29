@@ -10,7 +10,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get("https://medilocator-complete.onrender.com/inventory/stats");
+        const res = await api.get("/inventory/stats");
         setStats(res.data.data);
       } catch (err) {
         setError("Failed to load dashboard");

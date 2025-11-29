@@ -8,10 +8,16 @@ const app = express();
 // This configures your server to accept requests
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN, 
+    origin: [
+      "https://medilocator-cqam.onrender.com",
+      "http://localhost:5173"
+    ],
     credentials: true,
   })
 );
+
+app.options("*", cors());
+
 
 app.use(express.json({ limit: "16kb" })); // To accept JSON data
 app.use(express.urlencoded({ extended: true, limit: "16kb" })); // To accept form data

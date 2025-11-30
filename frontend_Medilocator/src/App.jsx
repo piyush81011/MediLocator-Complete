@@ -43,7 +43,7 @@ function App() {
 
           {/* STORE AUTH */}
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/register" element={<AdminSignup />} />
+          <Route path="/stores/register" element={<AdminSignup />} />
           <Route path="/admin" element={<Navigate to="/admin/register" replace />} />
 
           {/* PROTECTED STORE ROUTES */}

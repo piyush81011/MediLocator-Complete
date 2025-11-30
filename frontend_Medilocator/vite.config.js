@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://medilocator-complete.onrender.com',
+        target: 'http://localhost:8000',  // Changed to your local backend
         changeOrigin: true,
         secure: false,
       }

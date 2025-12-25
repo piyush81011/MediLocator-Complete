@@ -10,6 +10,7 @@ const allowedOrigins = [
   'http://localhost:5174',
   'https://medilocator-complete.onrender.com',
   'https://medilocator-cqam.onrender.com',
+  'https://www.medilocator.live'
 ];
 
 const corsOptions = {

@@ -80,7 +80,7 @@ const searchProducts = asyncHandler(async (req, res) => {
 });
 
 const getAllProducts = asyncHandler(async (req, res) => {
-  const { category, page = 1, limit = 50 } = req.query;
+  const { category, page = 1, limit = 2000 } = req.query;
 
   const filter = {};
   if (category) {

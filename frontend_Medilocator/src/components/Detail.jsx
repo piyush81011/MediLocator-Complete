@@ -148,20 +148,21 @@ export default function Detail() {
               >
                 {!isLoggedIn && (
                   <span className="badge bg-warning text-dark position-absolute top-0 end-0 m-2">
-                    🔒 Login
+                    <span className="d-none d-md-inline">🔒 Login</span>
+                    <span className="d-md-none">🔒</span>
                   </span>
                 )}
 
-                <div className="card-body d-flex flex-column">
+                <div className="card-body d-flex flex-column p-2 p-md-3">
                   <h6 className="fw-bold text-dark mb-1">
                     {medicine.productName}
                   </h6>
                   <p className="text-muted small mb-1">
-                    <strong>Brand:</strong> {medicine.brand}
+                    <span className="d-none d-md-inline"><strong>Brand:</strong> </span>{medicine.brand}
                   </p>
 
                   {medicine.genericName && (
-                    <p className="text-muted small mb-2">
+                    <p className="text-muted small mb-2 d-none d-md-block">
                       <strong>Generic:</strong> {medicine.genericName}
                     </p>
                   )}
@@ -178,9 +179,17 @@ export default function Detail() {
                   <div className="mt-auto">
                     {isLoggedIn ? (
                       <>
-                        <div className="d-flex justify-content-between small mb-2">
+                        {/* Desktop view */}
+                        <div className="d-none d-md-flex justify-content-between small mb-2">
                           <span className="text-muted">Price Range:</span>
                           <span className="badge bg-success">
+                            {getPriceRange(medicine.stores)}
+                          </span>
+                        </div>
+                        {/* Mobile view */}
+                        <div className="d-md-none mb-2">
+                          <small className="text-muted d-block" style={{ fontSize: "10px" }}>Price Range</small>
+                          <span className="badge bg-success" style={{ fontSize: "11px" }}>
                             {getPriceRange(medicine.stores)}
                           </span>
                         </div>
@@ -190,11 +199,22 @@ export default function Detail() {
                       </>
                     ) : (
                       <>
-                        <div className="d-flex justify-content-between small mb-2">
+                        {/* Desktop view */}
+                        <div className="d-none d-md-flex justify-content-between small mb-2">
                           <span className="text-muted">Starting from:</span>
                           <span
                             className="badge bg-secondary"
                             style={{ filter: "blur(3px)" }}
+                          >
+                            ₹{getMinPrice(medicine.stores)}
+                          </span>
+                        </div>
+                        {/* Mobile view */}
+                        <div className="d-md-none mb-2">
+                          <small className="text-muted d-block" style={{ fontSize: "10px" }}>Starting from</small>
+                          <span
+                            className="badge bg-secondary"
+                            style={{ filter: "blur(3px)", fontSize: "11px" }}
                           >
                             ₹{getMinPrice(medicine.stores)}
                           </span>
@@ -206,7 +226,8 @@ export default function Detail() {
                             navigate("/login");
                           }}
                         >
-                          Login to Unlock
+                          <span className="d-none d-md-inline">Login to Unlock</span>
+                          <span className="d-md-none">Login</span>
                         </button>
                       </>
                     )}

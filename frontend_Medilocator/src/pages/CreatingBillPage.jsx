@@ -14,7 +14,21 @@ const BillingPage = () => {
   const [loading, setLoading] = useState(false);
   const [showBillSuccess, setShowBillSuccess] = useState(false);
   const [lastBillData, setLastBillData] = useState(null);
+  const [storeName, setStoreName] = useState("Medical Store");
   const navigate = useNavigate();
+
+  // Fetch store name from localStorage
+  useEffect(() => {
+    const store = localStorage.getItem("store");
+    if (store) {
+      try {
+        const storeData = JSON.parse(store);
+        setStoreName(storeData.storeName || storeData.name || "Medical Store");
+      } catch {
+        setStoreName("Medical Store");
+      }
+    }
+  }, []);
 
   // Inventory search
   useEffect(() => {
@@ -161,7 +175,9 @@ const BillingPage = () => {
       </head>
       <body>
         <div class="container">
-          <h2>MediLocator Store</h2>
+          <h2>🏥 ${escapeHtml(storeName)}</h2>
+          <p style="color:#666;margin-top:4px;">Medical & Healthcare Products</p>
+          <hr style="border:1px solid #eee;margin:15px 0;">
           <div class="meta">
             <div>Bill ID: ${escapeHtml(bill._id || "")}</div>
             <div>Date: ${escapeHtml(createdAt)}</div>

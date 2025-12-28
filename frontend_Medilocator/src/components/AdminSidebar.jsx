@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { 
   FaTachometerAlt, 
   FaStore, 
-  FaPlusCircle, 
   FaListAlt, 
   FaSignOutAlt, 
   FaBox,
   FaCashRegister,
-  FaHistory 
+  FaHistory,
+  FaUser
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
@@ -15,10 +15,23 @@ import api from "../utils/api";
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
+  const [storeName, setStoreName] = useState("");
+
+  useEffect(() => {
+    const store = localStorage.getItem("store");
+    if (store) {
+      try {
+        const storeData = JSON.parse(store);
+        setStoreName(storeData.storeName || storeData.name || "My Store");
+      } catch {
+        setStoreName("My Store");
+      }
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {
-      await axios.post("https://medilocator-complete.onrender.com/stores/logout");
+      await api.post("/stores/logout");
     } catch (error) {
       console.error("Server logout failed:", error);
     } finally {
@@ -30,18 +43,24 @@ const AdminSidebar = () => {
   };
 
   return (
-    <div className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark vh-100" style={{ width: "240px" }}>
+    <div className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark vh-100" style={{ width: "240px", minWidth: "240px" }}>
       
       <a 
         href="#"
         onClick={(e) => { e.preventDefault(); navigate("/admin/dashboard"); }} 
-        className="d-flex align-items-center mb-3 text-white text-decoration-none"
+        className="d-flex align-items-center mb-2 text-white text-decoration-none"
       >
         <img src={logo} alt="medilocator" style={{width: "35px", height: "35px"}} className="me-2" />
         <span className="fs-5">MediLocator</span>
       </a>
+
+      {/* Store Name Badge */}
+      <div className="bg-secondary rounded p-2 mb-2 d-flex align-items-center">
+        <FaUser className="me-2" />
+        <small className="text-truncate" style={{ maxWidth: "170px" }}>{storeName}</small>
+      </div>
       
-      <hr />
+      <hr className="my-2" />
 
       <ul className="nav nav-pills flex-column mb-auto">
         <li className="nav-item">
@@ -74,16 +93,6 @@ const AdminSidebar = () => {
           >
             <FaStore className="me-2" />
             My Inventory
-          </a>
-        </li>
-        <li className="nav-item">
-          <a 
-            href="#" 
-            onClick={(e) => { e.preventDefault(); navigate("/store/catalog-search"); }} 
-            className="nav-link text-white d-flex align-items-center"
-          >
-            <FaPlusCircle className="me-2" />
-            Add from Catalog
           </a>
         </li>
         <li className="nav-item">

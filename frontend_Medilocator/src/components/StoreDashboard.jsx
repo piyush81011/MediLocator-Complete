@@ -49,7 +49,7 @@ const StoreDashboard = () => {
   const handleEdit = (item) => {
     // Navigate to the edit page (you will need to create this route/page)
     // We pass the item data to the next page to pre-fill the form
-    navigate(`api/v1/store/inventory/edit/${item._id}`, { state: { currentItem: item } });
+    navigate(`/store/inventory/edit/${item._id}`, { state: { currentItem: item } });
   };
 
   return (
@@ -66,7 +66,7 @@ const StoreDashboard = () => {
           <h1 className="display-6 fw-bold">My Inventory</h1>
           <button 
             className="btn btn-primary btn-lg" 
-            onClick={() => navigate("api/v1/store/catalog-search")} // Corrected route from your App.jsx
+            onClick={() => navigate("/store/catalog-search")}
           >
             + Add New Product
           </button>

@@ -8,11 +8,15 @@ const MedicineDetailPage = () => {
 
   if (!medicine) {
     return (
-      <div className="container py-5 text-center">
-        <h3>Medicine not found</h3>
-        <button className="btn btn-success mt-3" onClick={() => navigate("/")}>
-          Go to Home
-        </button>
+      <div className="d-flex align-items-center justify-content-center" style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
+        <div className="text-center">
+          <div className="mb-4" style={{ fontSize: "4rem" }}>💊</div>
+          <h4 className="text-dark mb-3">Medicine Not Found</h4>
+          <p className="text-muted mb-4">The medicine you're looking for doesn't exist or has been removed.</p>
+          <button className="btn btn-primary px-4 py-2" onClick={() => navigate("/")}>
+            ← Back to Home
+          </button>
+        </div>
       </div>
     );
   }
@@ -20,195 +24,181 @@ const MedicineDetailPage = () => {
   const sortedStores = [...medicine.stores].sort((a, b) => a.price - b.price);
   const minPrice = Math.min(...medicine.stores.map(s => s.price));
   const maxPrice = Math.max(...medicine.stores.map(s => s.price));
-  const avgPrice = medicine.stores.reduce((sum, s) => sum + s.price, 0) / medicine.stores.length;
+  const savings = maxPrice - minPrice;
+
+  const openMaps = (store) => {
+    const destination = store.latitude && store.longitude 
+      ? `${store.latitude},${store.longitude}`
+      : encodeURIComponent(store.address || store.storeName);
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}`, "_blank");
+  };
 
   return (
-    <div className="min-vh-100" style={{ backgroundColor: "#f8f9fa" }}>
+    <div style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
       <div className="container py-4">
         
-        {/* Back Button */}
-        <button className="btn btn-outline-secondary mb-4" onClick={() => navigate(-1)}>
-          ← Back
-        </button>
+        {/* Header */}
+        <div className="d-flex align-items-center justify-content-between mb-4">
+          <button 
+            className="btn btn-outline-secondary d-flex align-items-center gap-2"
+            onClick={() => navigate(-1)}
+          >
+            <span>←</span> Back to Results
+          </button>
+          
+          {savings > 0 && (
+            <div className="badge bg-success bg-opacity-10 text-success px-3 py-2 fs-6 d-none d-md-block">
+              💰 You can save ₹{savings.toFixed(0)} by comparing!
+            </div>
+          )}
+        </div>
 
-        {/* Medicine Info Card */}
-        <div className="card shadow-sm mb-4">
-          <div className="card-body">
-            <div className="row">
+        {/* Medicine Details Card */}
+        <div className="card border-0 shadow-sm mb-4" style={{ borderRadius: "12px" }}>
+          <div className="card-body p-4">
+            <div className="row align-items-center">
               <div className="col-lg-8">
-                <h2 className="fw-bold mb-3">{medicine.productName}</h2>
-                <div className="mb-3">
-                  <p className="mb-2"><strong>Brand:</strong> {medicine.brand}</p>
-                  {medicine.genericName && (
-                    <p className="mb-2"><strong>Generic Name:</strong> {medicine.genericName}</p>
+                <div className="d-flex flex-wrap gap-2 mb-3">
+                  <span className="badge text-primary px-3 py-2" style={{ backgroundColor: "#e0f2fe" }}>
+                    {medicine.category}
+                  </span>
+                  {medicine.requiresPrescription && (
+                    <span className="badge text-warning px-3 py-2" style={{ backgroundColor: "#fef3c7" }}>
+                      ⚠️ Prescription Required
+                    </span>
                   )}
-                  <p className="mb-2">
-                    <span className="badge bg-info me-2">{medicine.category}</span>
-                    {medicine.requiresPrescription && (
-                      <span className="badge bg-warning text-dark">Prescription Required</span>
-                    )}
-                  </p>
                 </div>
+                
+                <h2 className="fw-bold text-dark mb-2">{medicine.productName}</h2>
+                <p className="text-muted mb-1">
+                  <span className="fw-medium">Brand:</span> {medicine.brand}
+                </p>
+                {medicine.genericName && (
+                  <p className="text-muted mb-0">
+                    <span className="fw-medium">Generic:</span> {medicine.genericName}
+                  </p>
+                )}
               </div>
               
-              <div className="col-lg-4">
-                <div className="card bg-light border-0">
-                  <div className="card-body text-center">
-                    <h6 className="text-muted mb-3">Price Statistics</h6>
-                    <div className="row g-3">
-                      <div className="col-4">
-                        <small className="text-muted d-block">Lowest</small>
-                        <h5 className="text-success mb-0">₹{minPrice.toFixed(2)}</h5>
+              <div className="col-lg-4 mt-4 mt-lg-0">
+                <div className="text-center p-4" style={{ backgroundColor: "#f0fdf4", borderRadius: "12px" }}>
+                  <p className="text-muted small mb-2">Best Available Price</p>
+                  <h2 className="text-success fw-bold mb-1">₹{minPrice.toFixed(0)}</h2>
+                  {maxPrice > minPrice && (
+                    <p className="text-muted small mb-0">
+                      Range: ₹{minPrice.toFixed(0)} - ₹{maxPrice.toFixed(0)}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stores Section */}
+        <div className="mb-3">
+          <h5 className="fw-bold text-dark mb-0">
+            📍 Available at {medicine.stores.length} Nearby Store{medicine.stores.length > 1 ? 's' : ''}
+          </h5>
+          <p className="text-muted small">Sorted by lowest price first</p>
+        </div>
+
+        {/* Store Cards */}
+        <div className="row g-3">
+          {sortedStores.map((store, index) => (
+            <div key={index} className="col-12">
+              <div 
+                className="card border-0 shadow-sm" 
+                style={{ 
+                  borderRadius: "10px",
+                  borderLeft: index === 0 ? "4px solid #22c55e" : "none"
+                }}
+              >
+                <div className="card-body p-3">
+                  <div className="row align-items-center">
+                    
+                    {/* Rank & Store Name */}
+                    <div className="col-12 col-md-4 mb-2 mb-md-0">
+                      <div className="d-flex align-items-center gap-2">
+                        <span 
+                          className="badge rounded-pill px-2 py-1"
+                          style={{ 
+                            backgroundColor: index === 0 ? "#22c55e" : "#e2e8f0",
+                            color: index === 0 ? "white" : "#64748b",
+                            fontSize: "12px"
+                          }}
+                        >
+                          {index === 0 ? "🏆 Best" : `#${index + 1}`}
+                        </span>
+                        <div>
+                          <h6 className="fw-semibold text-dark mb-0">{store.storeName}</h6>
+                          <small className="text-muted">
+                            {store.address || "Address not available"}
+                          </small>
+                        </div>
                       </div>
-                      <div className="col-4">
-                        <small className="text-muted d-block">Average</small>
-                        <h5 className="text-primary mb-0">₹{avgPrice.toFixed(2)}</h5>
+                    </div>
+
+                    {/* Price & Stock */}
+                    <div className="col-6 col-md-3 mb-2 mb-md-0">
+                      <div className="d-flex gap-4">
+                        <div>
+                          <small className="text-muted d-block">Price</small>
+                          <span className={`fw-bold fs-5 ${index === 0 ? "text-success" : "text-dark"}`}>
+                            ₹{store.price.toFixed(0)}
+                          </span>
+                        </div>
+                        <div>
+                          <small className="text-muted d-block">Stock</small>
+                          <span className={`badge ${store.stock > 10 ? "bg-success" : store.stock > 0 ? "bg-warning" : "bg-danger"}`}>
+                            {store.stock} units
+                          </span>
+                        </div>
                       </div>
-                      <div className="col-4">
-                        <small className="text-muted d-block">Highest</small>
-                        <h5 className="text-danger mb-0">₹{maxPrice.toFixed(2)}</h5>
+                    </div>
+
+                    {/* Expiry */}
+                    <div className="col-6 col-md-2 mb-2 mb-md-0">
+                      <small className="text-muted d-block">Expiry</small>
+                      <span>{new Date(store.expiryDate).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}</span>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="col-12 col-md-3">
+                      <div className="d-flex gap-2 justify-content-md-end">
+                        {(store.contactNo || store.phone) && (
+                          <a 
+                            href={`tel:${store.contactNo || store.phone}`}
+                            className="btn btn-outline-secondary d-flex align-items-center gap-1"
+                          >
+                            📞 Call
+                          </a>
+                        )}
+                        <button
+                          className="btn btn-primary d-flex align-items-center gap-2"
+                          onClick={() => openMaps(store)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path fillRule="evenodd" d="M8 0a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 12.293V.5A.5.5 0 0 1 8 0z" transform="rotate(-45 8 8)"/>
+                          </svg>
+                          Directions
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Store Comparison Table */}
-        <div className="card shadow-sm">
-          <div className="card-header bg-success text-white">
-            <h5 className="mb-0">💊 Available at {medicine.stores.length} Store(s)</h5>
-          </div>
-          <div className="card-body p-0">
-            <div className="table-responsive">
-              <table className="table table-hover mb-0">
-                <thead className="table-light">
-                  <tr>
-                    <th style={{ width: "80px" }}>Rank</th>
-                    <th>Store Name</th>
-                    <th>Address</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Batch No.</th>
-                    <th>Expiry Date</th>
-                    <th>Contact</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedStores.map((store, index) => (
-                    <tr key={index} className={index === 0 ? 'table-success' : ''}>
-                      <td>
-                        {index === 0 ? (
-                          <span className="badge bg-success fs-6">
-                            🏆 Best
-                          </span>
-                        ) : (
-                          <span className="text-muted">#{index + 1}</span>
-                        )}
-                      </td>
-                      <td>
-                        <strong>{store.storeName}</strong>
-                      </td>
-                      <td>
-                        <div>
-                          <i className="bi bi-geo-alt-fill text-danger"></i>
-                          <span className="ms-1">
-                            {store.address || "Address not available"}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <span 
-                          className={`badge fs-6 ${
-                            store.price === minPrice 
-                              ? 'bg-success' 
-                              : store.price === maxPrice 
-                              ? 'bg-danger' 
-                              : 'bg-primary'
-                          }`}
-                        >
-                          ₹{store.price.toFixed(2)}
-                        </span>
-                        {store.price === minPrice && (
-                          <div>
-                            <small className="text-success fw-bold">Lowest Price!</small>
-                          </div>
-                        )}
-                      </td>
-                      <td>
-                        <span className={`badge ${store.stock > 10 ? 'bg-success' : 'bg-warning text-dark'}`}>
-                          {store.stock} units
-                        </span>
-                      </td>
-                      <td>
-                        <small>{store.batchNumber || "N/A"}</small>
-                      </td>
-                      <td>
-                        <small>{new Date(store.expiryDate).toLocaleDateString()}</small>
-                      </td>
-                      <td>
-                        {store.contactNo || store.phone ? (
-                          <a 
-                            href={`tel:${store.contactNo || store.phone}`} 
-                            className="btn btn-sm btn-outline-primary"
-                          >
-                            📞 Call
-                          </a>
-                        ) : (
-                          <small className="text-muted">N/A</small>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* Savings Alert */}
-        {maxPrice > minPrice && (
-          <div className="alert alert-success mt-4 d-flex align-items-center">
-            <div style={{ fontSize: "3rem" }} className="me-3">💰</div>
-            <div>
-              <h5 className="mb-1">Save up to ₹{(maxPrice - minPrice).toFixed(2)}!</h5>
-              <p className="mb-0">By choosing the store with the lowest price</p>
-            </div>
-          </div>
-        )}
-
-        {/* Store Cards for Mobile View */}
-        <div className="d-md-none mt-4">
-          <h5 className="mb-3">Compare Stores</h5>
-          {sortedStores.map((store, index) => (
-            <div key={index} className="card mb-3 shadow-sm">
-              <div className="card-body">
-                {index === 0 && (
-                  <span className="badge bg-success mb-2">🏆 Best Price</span>
-                )}
-                <h6 className="fw-bold">{store.storeName}</h6>
-                <p className="mb-2">
-                  <i className="bi bi-geo-alt-fill text-danger"></i>
-                  <small className="ms-1">{store.address || "Address not available"}</small>
-                </p>
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="badge bg-success fs-6">₹{store.price.toFixed(2)}</span>
-                  <span className="badge bg-secondary">{store.stock} units</span>
-                </div>
-                {(store.contactNo || store.phone) && (
-                  <a 
-                    href={`tel:${store.contactNo || store.phone}`} 
-                    className="btn btn-sm btn-outline-primary w-100"
-                  >
-                    📞 Call Store
-                  </a>
-                )}
-              </div>
-            </div>
           ))}
         </div>
+
+        {/* Info Footer */}
+        <div className="text-center mt-4 py-4">
+          <p className="text-muted small mb-0">
+            💡 Prices may vary. Please confirm with the store before visiting.
+          </p>
+        </div>
+
       </div>
     </div>
   );
